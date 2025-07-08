@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: hwf
+  datasource:
+    url: jdbc:postgresql://localhost:5432/housewith
+    username: kimmj
+    password: 598618
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+ErrorCode:
+  Request:
+    UNAVAILABLE_REQUEST_STATUS : "UNAVAILABLE REQUEST STATUS"
+    UNAVAILABLE_REQUEST_NULL : "NOTHING"
+    REQUEST_OVERFLOW : "REQUEST OVERFLOW"
+  Param:
+    INVALID_JOIN_STATUS : "INVALID JOIN STATUS"
+
+univcert:
+  key: key1234
