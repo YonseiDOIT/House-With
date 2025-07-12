@@ -21,6 +21,7 @@ public interface ArticleRepositoryCustom {
                                            String available_at ,
                                            String dormitory);
     JoinStatus findJoinStatus(Long articleId , Long memberId);
+    Long countArticlesByMember(Long memberId);
 //    List<Member> findMembersByArticleId(Long articleId);
     //관리자 페이지용
     List<ArticleDTO> findArticleByTime_Admin(LocalDate localDate);

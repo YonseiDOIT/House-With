@@ -38,7 +38,9 @@ public class JoinRequest {
     )
     private Member member;
 
-    public JoinRequest(LocalDateTime localDateTime, JoinStatus joinStatus) {
+    public JoinRequest(
+            LocalDateTime localDateTime,
+                       JoinStatus joinStatus) {
         this.localDateTime = localDateTime;
         this.joinStatus = joinStatus;
     }
@@ -61,5 +63,7 @@ public class JoinRequest {
     public void set_Article(Article article){
         this.article = article;
     }
+
+    public void set_Member(Member member) {this.member = member;}
 
 }

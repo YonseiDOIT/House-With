@@ -1,5 +1,6 @@
 package HouseWith.hwf.domain.Keywords;
 
+import HouseWith.hwf.DTO.RoomKeywordDTO;
 import HouseWith.hwf.domain.Article.Article;
 import com.querydsl.core.annotations.QueryProjection;
 import jakarta.persistence.*;
@@ -26,7 +27,14 @@ public class RoomKeyword {
     private String sleep_time;
     private String available_eat;
 
-    @QueryProjection
+    public void update_detail(RoomKeywordDTO detail) {
+        this.dormitory = detail.getDormitory();
+        this.motion = detail.getMotion();
+        this.smoke = detail.getSmoke();
+        this.sleep_time = detail.getSleep_time();
+        this.available_eat = detail.getAvailable_eat();
+    }
+
     public RoomKeyword(String dormitory ,
                        String motion,
                        String smoke,

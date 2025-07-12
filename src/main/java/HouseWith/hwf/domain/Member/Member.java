@@ -72,19 +72,18 @@ public class Member {
         this.email = email;
     }
 
-    //이메일 저장
-    public Member(
-            String email
-    ) {
-        this.email = email;
-    }
-
     //회원 정보 받아오기
     public Member(
+            String username ,
+            String password ,
+            String email ,
             String nickname ,
             String sex ,
             String dormitoryName
     ) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
         this.nickname = nickname;
         this.sex = sex;
         this.dormitoryName = dormitoryName;

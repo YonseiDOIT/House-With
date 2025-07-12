@@ -1,9 +1,12 @@
 package HouseWith.hwf.web.Login.InitInfo.Service;
 
 import HouseWith.hwf.DTO.LivingPatternDTO;
+import HouseWith.hwf.Exceptions.RequestExceptioons.IllegalJoinStatusException;
+import HouseWith.hwf.Exceptions.RequestExceptioons.IllegalParamException;
 import HouseWith.hwf.domain.LivingPattern.LivingPattern;
 import HouseWith.hwf.domain.Member.Member;
 import HouseWith.hwf.domain.Member.MemberRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,16 +15,24 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class InitService {
-    public Member authUniv(String email) {
-        return new Member(email);
-    }
+    private final MemberRepository memberRepository;
+
+    static String CHECK = "중복 확인 요청입니다.";
+
 
     public Member getInitData(
+            String username,
+            String password,
+            String email ,
             String nickname ,
             String sex ,
             String dormitoryName) {
+
+        if (memberRepository.existsByNickname(nickname))
+            throw new IllegalParamException(CHECK);
+
         return new Member(
-                nickname , sex , dormitoryName
+                username , password , email , nickname , sex , dormitoryName
         );
     }
 

@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 import javax.swing.text.html.Option;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,10 +29,8 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
     /**
-     *
      * 전체 게시물 찾기
      * 25/6/23 - 업로드 시간 별로 저장 , 1 페이지 당 12 게시물
-     *
      */
 
     @Override
@@ -39,10 +38,12 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         return queryFactory
                 .select(new QArticleDTO(
                         article.id ,
+                        article.owner ,
                         article.createdTime ,
                         article.dormitory ,
                         article.title ,
                         article.quarter ,
+                        article.join_member_count ,
                         article.access_max ,
                         article.comment ,
                         article.open_url))
@@ -54,12 +55,11 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     }
 
     /**
-     *
      * 6/26 -
      * article_Id 로 게시글 검색
      *
      * 7/8 - 수장
-     * article id로 해당 방의 정보들 전체 반환
+     * articleId로 해당 방의 정보들 전체 반환
      * 방에 속한 member 들 전부 반환
      */
     @Override
@@ -77,6 +77,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                                 article.dormitory ,
                                 article.title ,
                                 article.quarter ,
+                                article.join_member_count ,
                                 article.access_max ,
                                 article.comment ,
                                 article.open_url ,
@@ -113,10 +114,12 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         return queryFactory
                 .select(new QArticleDTO(
                         article.id ,
+                        article.owner ,
                         article.createdTime ,
                         article.dormitory ,
                         article.title ,
                         article.quarter ,
+                        article.join_member_count ,
                         article.access_max ,
                         article.comment ,
                         article.open_url))
@@ -201,6 +204,17 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .fetchOne();
     }
 
+    public Long countArticlesByMember(Long memberId) {
+        Long cnt = queryFactory
+                .select(joinRequest.article.countDistinct())
+                .from(joinRequest)
+                .join(joinRequest.member , member)
+                .where(joinRequest.member.id.eq(memberId) ,
+                        joinRequest.joinStatus.eq(JoinStatus.OWNER))
+                .fetchOne();
+        return cnt == null ? 0L : cnt;
+    }
+
     /**
      *
      * 6/26 -
@@ -214,10 +228,12 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         return queryFactory
                 .select(new QArticleDTO(
                         article.id ,
+                        article.owner ,
                         article.createdTime ,
                         article.dormitory ,
                         article.title ,
                         article.quarter ,
+                        article.join_member_count ,
                         article.access_max ,
                         article.comment ,
                         article.open_url))

@@ -1,6 +1,7 @@
 package HouseWith.hwf.web.MainContext;
 
 import HouseWith.hwf.DTO.ArticleDTO;
+import HouseWith.hwf.DTO.ArticlePreviewDTO;
 import HouseWith.hwf.DTO.DormitoryDTO;
 import HouseWith.hwf.DTO.RoomKeywordDTO;
 import HouseWith.hwf.domain.Article.Article;
@@ -25,7 +26,7 @@ public class MainContextController {
      * 모든 글들을 desc 로 정렬하여 전달 (시간 순으로 정렬)
      */
     @GetMapping("list")
-    public List<ArticleDTO> Main() {
+    public List<ArticlePreviewDTO> MainPage() {
         return articleService.getAllArticles();
     }
 
