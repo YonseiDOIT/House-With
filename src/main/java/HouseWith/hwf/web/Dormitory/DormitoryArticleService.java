@@ -70,15 +70,17 @@ public class DormitoryArticleService {
         long cnt = articleRepository
                 .countArticlesByMember(ownerId);
 
-        System.out.println(cnt);
         if (cnt > 1)
             throw new IllegalJoinStatusException(ERROR + error_OVERFLOW + " : 방을 한 개 이상 생성하였습니다.");
 
+        Member member = memberRepository
+                .findByMemberId(ownerId);
         /**
          * 새 방을 설정
          * 7/9 - 방 생성자의 ID 를 받아오는 장치 추가
          */
         Article newRoom = new Article(
+                member.getNickname() ,
                 ownerId ,
                 articleDTO.getDormitory() ,
                 articleDTO.getTitle() ,
@@ -106,7 +108,7 @@ public class DormitoryArticleService {
         joinRequest.set_Article(newRoom);
         joinRequest.set_Member(memberRepository.findByMemberId(ownerId));
 
-        //키워드와
+        //키워드와 가입 설정까지 저장
         newRoom.set_roomKeyword(roomKeyword);
         newRoom.set_joinRequest(joinRequest);
 
@@ -119,13 +121,14 @@ public class DormitoryArticleService {
     }
 
     public Article modifyRoom(
-            Long ownerId ,
-            Long memberId ,
+            Long articleId ,
             ArticleDTO articleDTO ,
             RoomKeywordDTO roomKeywordDTO) {
 
+        long ownerId = articleDTO.getOwner();
+
         JoinStatus status =
-                articleRepository.findJoinStatus(ownerId , memberId);
+                articleRepository.findJoinStatus(ownerId , articleId);
 
         if (status == null)
             throw new ArticleNotFoundException(ERROR + error_NULL);

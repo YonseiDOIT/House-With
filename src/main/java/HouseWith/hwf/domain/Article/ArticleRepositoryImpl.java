@@ -37,7 +37,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     public List<ArticleDTO> findArticles() {
         return queryFactory
                 .select(new QArticleDTO(
-                        article.id ,
+                        article.owner_nickname,
                         article.owner ,
                         article.createdTime ,
                         article.dormitory ,
@@ -113,7 +113,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     public List<ArticleDTO> findArticleByKeywords(String search_key , String motion , String smoke , String sleep_time , String available_at , String dormitory) {
         return queryFactory
                 .select(new QArticleDTO(
-                        article.id ,
+                        article.owner_nickname ,
                         article.owner ,
                         article.createdTime ,
                         article.dormitory ,
@@ -227,7 +227,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     public List<ArticleDTO> findArticleByTime_Admin(LocalDate localDate) {
         return queryFactory
                 .select(new QArticleDTO(
-                        article.id ,
+                        article.owner_nickname ,
                         article.owner ,
                         article.createdTime ,
                         article.dormitory ,

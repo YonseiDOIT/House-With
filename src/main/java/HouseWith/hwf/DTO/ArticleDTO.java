@@ -7,7 +7,8 @@ import java.time.LocalDateTime;
 
 @Getter
 public class ArticleDTO {
-    private Long id;
+    //소유자 닉네임
+    private String owner_nickname;
     //소유자 ID
     private Long owner;
     //시간
@@ -29,7 +30,7 @@ public class ArticleDTO {
 
 
     @QueryProjection
-    public ArticleDTO(Long articleId ,
+    public ArticleDTO(String owner_nickname ,
                       Long owner,
                       LocalDateTime createdTime ,
                       String dormitory ,
@@ -39,7 +40,7 @@ public class ArticleDTO {
                       Integer access_max ,
                       String comment ,
                       String open_url) {
-        this.id = articleId;
+        this.owner_nickname = owner_nickname;
         this.owner = owner;
         this.createdTime = createdTime;
         this.dormitory = dormitory;

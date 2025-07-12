@@ -45,6 +45,7 @@ public class MainContextService {
         return articleDTOS.stream()
                 .map(article -> new ArticlePreviewDTO(
                         Times_Ago(article.getCreatedTime()) ,
+                        article.getOwner_nickname() ,
                         article.getOwner() ,
                         article.getDormitory() ,
                         article.getTitle() ,
@@ -85,7 +86,7 @@ public class MainContextService {
                 .findArticleByAcceptedMember(articleId);
 
         if (dormitoryDTO.isEmpty())
-            throw new ArticleNotFoundException(ERROR + error_NULL);
+            throw new ArticleNotFoundException(ERROR + error_NULL + " : " + articleId + "에 해당하는 방이 존재하지 않습니다.");
 
         return dormitoryDTO;
     }

@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ArticlePreviewDTO {
     private String Times_Ago;
+    //소유자 이름(닉네임)
+    private String nickname;
     //소유자
     private Long owner;
     //기숙사 정보

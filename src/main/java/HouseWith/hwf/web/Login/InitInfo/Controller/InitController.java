@@ -1,23 +1,18 @@
 package HouseWith.hwf.web.Login.InitInfo.Controller;
 
 import HouseWith.hwf.DTO.LivingPatternDTO;
-import HouseWith.hwf.domain.LivingPattern.LivingPatternRepository;
 import HouseWith.hwf.domain.Member.Member;
 import HouseWith.hwf.domain.Member.MemberRepository;
-import HouseWith.hwf.domain.Member.MemberRepositoryCustom;
 import HouseWith.hwf.web.Login.InitInfo.Service.InitService;
-import com.univcert.api.UnivCert;
+import HouseWith.hwf.web.Login.Security.JWT.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.xml.transform.Result;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +21,7 @@ import java.util.Optional;
 public class InitController {
     private final MemberRepository memberRepository;
     private final InitService initService;
+    private final JwtUtil jwtUtil;
 
     @Value("${univcert.key}")
     private String UNIV_CERT_KEY;
@@ -36,7 +32,7 @@ public class InitController {
      *
      * 논점 - 학교 인증이 꼭 필요한지???
      */
-    @PostMapping("univAuth")
+    //@PostMapping("univAuth")
     public ResponseEntity<?> UnivCertification_email(
             @RequestParam String YonseiEmail ,
             @RequestParam Long memberId) throws IOException {
@@ -72,15 +68,43 @@ public class InitController {
             @RequestParam String nickname,
             @RequestParam String sex ,
             @RequestParam(value = "dormitory") String dormitoryName) {
-        memberRepository.save(initService.getInitData(
+        Member member = initService.getInitData(
                 "user1" , "password!" , YonseiEmail , nickname , sex , dormitoryName
-        ));
-        return ResponseEntity.ok().build();
+        );
+
+//        String jwt = jwtUtil.genToken(
+//                member.getId() ,
+//                member.getEmail(),
+//                member.getNickname()
+//        );
+
+        memberRepository.save(member);
+        return ResponseEntity.ok("userID :" + member.getId());
     }
 
+    /**
+     * 7/8 - 구현 완료
+     * @param nickname : 중복 검사할 닉네임
+     * @return : ok -> 중복 있음
+     */
+    @GetMapping("nickDup")
+    public ResponseEntity<?> NickDup(
+            @RequestParam String nickname
+    ) {
+        return initService.nickDuplicateCheck(nickname) ?
+               ResponseEntity.ok("DUPLICATED") : ResponseEntity.ok("NOT_DUPLICATED");
+    }
+
+    /**
+     * 7/6 - 개발 완료
+     * @param livingPatternDTO : 개인 생활 패턴을 받아오는 DTO
+     * @return : 받아서 저장합니다. -> 수정 기능은 추후에 개발
+     */
     @PostMapping("patternInfo")
-    public ResponseEntity<?> PatternInfo(@RequestBody LivingPatternDTO livingPatternDTO) {
-        memberRepository.save(initService.getLivingPattern(livingPatternDTO));
+    public ResponseEntity<?> PatternInfo(
+            @RequestBody LivingPatternDTO livingPatternDTO) {
+        memberRepository
+                .save(initService.getLivingPattern(livingPatternDTO));
         return ResponseEntity.ok().build();
     }
 }

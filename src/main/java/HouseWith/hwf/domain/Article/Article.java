@@ -1,13 +1,10 @@
 package HouseWith.hwf.domain.Article;
 
 import HouseWith.hwf.DTO.ArticleDTO;
-import HouseWith.hwf.DTO.RoomKeywordDTO;
 import HouseWith.hwf.domain.JoinRequest.JoinRequest;
 import HouseWith.hwf.domain.Keywords.RoomKeyword;
-import HouseWith.hwf.domain.Member.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,6 +20,8 @@ public class Article {
     @Id @GeneratedValue
     @Column(name = "article_id")
     private Long id;
+    //소유자 닉네임
+    private String owner_nickname;
     //소유자
     private Long owner;
     //글 생성 시점 업데이트
@@ -55,7 +54,8 @@ public class Article {
     )
     private List<JoinRequest> joinRequests = new ArrayList<>();
 
-    public Article(Long owner ,
+    public Article(String owner_nickname ,
+                   Long owner ,
                    String dormitory,
                    String title,
                    String quarter,
@@ -63,6 +63,7 @@ public class Article {
                    Integer access_max ,
                    String comment ,
                    String open_url) {
+        this.owner_nickname = owner_nickname;
         this.owner = owner;
         this.createdTime = LocalDateTime.now();
         this.dormitory = dormitory;

@@ -36,6 +36,15 @@ public class InitService {
         );
     }
 
+    /**
+     * 7/6 - 개발 완료
+     * @param nickname : 중복 검사할 닉네임
+     * @return : true = 중복된 닉네임 있음 / false = 중복된 닉네임 없음
+     */
+    public boolean nickDuplicateCheck(String nickname) {
+        return memberRepository.existsByNickname(nickname);
+    }
+
     public Member getLivingPattern(LivingPatternDTO livingPatternDTO) {
         LivingPattern livingPattern = new LivingPattern(
                 livingPatternDTO.getSleep_pattern() ,

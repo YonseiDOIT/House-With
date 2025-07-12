@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class LivingPattern {
     @Id @GeneratedValue
     @Column(name = "pattern_id")
-    private int id;
+    private Long id;
 
     @OneToOne
     private Member member;

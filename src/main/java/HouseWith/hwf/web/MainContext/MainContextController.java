@@ -24,6 +24,10 @@ public class MainContextController {
     /**
      * 6/28 - 테스트 완료
      * 모든 글들을 desc 로 정렬하여 전달 (시간 순으로 정렬)
+     *
+     * 7/8 - 수정 완료
+     * 리소스 낭비 최소화를 위해 별개 DTO 구성
+     * 비 정상적이게 많이 쿼리를 날리는 부분이 있어 수정
      */
     @GetMapping("list")
     public List<ArticlePreviewDTO> MainPage() {

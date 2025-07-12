@@ -2,9 +2,9 @@ spring:
   application:
     name: hwf
   datasource:
-    url: jdbc:postgresql://localhost:5432/housewith
-    username: kimmj
-    password: 598618
+    url: jdbc:postgresql://housewith.cn8ua6gwskmx.ap-northeast-2.rds.amazonaws.com:5432/housewith
+    username: hwadmin
+    password: housewith0711!
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -17,12 +17,19 @@ spring:
 
 ErrorCode:
   Request:
-    UNAVAILABLE_REQUEST_STATUS : "UNAVAILABLE REQUEST STATUS"
+    UNAVAILABLE_REQUEST_STATUS : "UNAVAILABLE_REQUEST_STATUS"
     UNAVAILABLE_REQUEST_NULL : "NOTHING"
-    REQUEST_OVERFLOW : "REQUEST OVERFLOW"
-    VALUE_DUPLICATED : "UNAVAILABLE CAUSE DUPLICATED"
+    REQUEST_OVERFLOW : "REQUEST_OVERFLOW"
+    VALUE_DUPLICATED : "UNAVAILABLE_CAUSE_DUPLICATED"
   Param:
-    INVALID_JOIN_STATUS : "INVALID JOIN STATUS"
+    INVALID_JOIN_STATUS : "INVALID_JOIN_STATUS"
+
+JWT:
+  # 나중에 수정할 비밀키입니다.
+  SecretKey: "pT+HzrT8gQkRpGJzxrfEFiS2yZPLClVhRxn3GuRIq2U="
 
 univcert:
   key: key1234
+
+github:
+  url: "https://github.com/KimMJ9911/House-With.git"
