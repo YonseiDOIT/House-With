@@ -1,37 +1,31 @@
-// 생략된 import 부분은 기존 그대로 유지
+// 생략된 import는 기존 유지
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { TYPOGRAPHY } from '../../constants/typography';
 import { COLORS } from '../../constants/colors';
+import Button from '../../components/Button/Button';
 
 const Lifestylepattern = () => {
   const navigate = useNavigate();
 
-  // 취침
+  // 선택 항목들 상태
   const [sleepType, setSleepType] = useState('');
   const [snoreType, setSnoreType] = useState('');
   const [nightWorkType, setNightWorkType] = useState('');
-
-  // 생활
   const [lifestyle, setLifestyle] = useState('');
   const [showerTime, setShowerTime] = useState('');
   const [itemShare, setItemShare] = useState('');
-
-  // 소리
   const [soundTool, setSoundTool] = useState('');
   const [callPlace, setCallPlace] = useState('');
-
-  // 소통
   const [socialType, setSocialType] = useState('');
-
-  // 정리
   const [cleaning, setCleaning] = useState('');
-
-  // 습관
   const [smoking, setSmoking] = useState('');
   const [dormEat, setDormEat] = useState('');
 
-  // 버튼 활성화 조건
+  // 팝업 및 하이라이트 상태
+  const [showModal, setShowModal] = useState(false);
+  const [highlightEmpty, setHighlightEmpty] = useState(false);
+
   const isFormValid =
     sleepType &&
     snoreType &&
@@ -46,24 +40,25 @@ const Lifestylepattern = () => {
     smoking &&
     dormEat;
 
-  // 공통 버튼 스타일 함수
-  const getButtonStyle = (isSelected: boolean) => ({
-    backgroundColor: isSelected ? '#000000' : COLORS.GRAYSCALE.G1,
-    color: isSelected ? '#FFFFFF' : '#000000',
-  });
+  // 공통 버튼 스타일 (선택 여부 + 하이라이트 여부)
+  const getButtonStyle = (isSelected: boolean, isHighlighted: boolean): React.CSSProperties => {
+    if (isSelected) return { backgroundColor: '#000000', color: '#FFFFFF' };
+    if (isHighlighted) return { backgroundColor: '#FFE5E5', color: '#000000' };
+    return { backgroundColor: COLORS.GRAYSCALE.G1, color: '#000000' };
+  };
 
-  // 버튼 UI
   const renderButtons = (
     options: string[],
     selected: string,
-    setSelected: (val: string) => void
+    setSelected: (value: string) => void,
+    isEmpty: boolean
   ) => (
     <div className="flex flex-wrap gap-2 py-2">
       {options.map(option => (
         <button
           key={option}
           onClick={() => setSelected(option)}
-          style={getButtonStyle(selected === option)}
+          style={getButtonStyle(selected === option, highlightEmpty && isEmpty)}
           className="px-4 py-2 text-sm rounded-full"
         >
           {option}
@@ -72,6 +67,15 @@ const Lifestylepattern = () => {
     </div>
   );
 
+  const handleSubmit = () => {
+    if (!isFormValid) {
+      setShowModal(true);
+      setHighlightEmpty(true);
+    } else {
+      navigate('/Welcome');
+    }
+  };
+
   return (
     <div className="flex flex-col items-start justify-start w-full max-w-[375px] mx-auto min-h-screen py-6">
       {/* 상단 뒤로가기 버튼 */}
@@ -79,7 +83,7 @@ const Lifestylepattern = () => {
         <button
           onClick={() => navigate(-1)}
           aria-label="뒤로가기"
-          className="px-0 py-0 bg-transparent"
+          className="w-8 h-8 px-0 py-0 bg-transparent"
         >
           <img src="/icons/chevron_left.svg" alt="뒤로가기" />
         </button>
@@ -104,6 +108,17 @@ const Lifestylepattern = () => {
         </p>
       </div>
 
+      {/* 설명2 */}
+      <div className="w-[375px] px-5 py-4 flex flex-row gap-3">
+        <p className={`${TYPOGRAPHY.TITLE1} leading-snug whitespace-pre-line`}>생활 패턴</p>
+        <p
+          style={{ color: highlightEmpty ? COLORS.SECONDARY.HW_Re2 : COLORS.GRAYSCALE.G8 }}
+          className={`${TYPOGRAPHY.BODY3} leading-snug whitespace-pre-line`}
+        >
+          *모든 생활 패턴을 선택해주세요!
+        </p>
+      </div>
+
       {/* 항목들 */}
       <div className="flex flex-col w-[375px] gap-6 px-5">
         {/* 취침 */}
@@ -112,9 +127,19 @@ const Lifestylepattern = () => {
             <img src="/icons/mypage_moon.svg" className="w-4 h-4" />
             <p className={`${TYPOGRAPHY.TITLE1}`}>취침 시간</p>
           </div>
-          {renderButtons(['규칙적인 수면', '불규칙적인 수면'], sleepType, setSleepType)}
-          {renderButtons(['코골이 · 이갈이 있음', '코골이 · 이갈이 없음'], snoreType, setSnoreType)}
-          {renderButtons(['야간 작업 많음', '야간 작업 적음'], nightWorkType, setNightWorkType)}
+          {renderButtons(['규칙적인 수면', '불규칙적인 수면'], sleepType, setSleepType, !sleepType)}
+          {renderButtons(
+            ['코골이 · 이갈이 있음', '코골이 · 이갈이 없음'],
+            snoreType,
+            setSnoreType,
+            !snoreType
+          )}
+          {renderButtons(
+            ['야간 작업 많음', '야간 작업 적음'],
+            nightWorkType,
+            setNightWorkType,
+            !nightWorkType
+          )}
         </div>
 
         {/* 생활 */}
@@ -123,9 +148,14 @@ const Lifestylepattern = () => {
             <img src="/icons/mypage_home.svg" className="w-4 h-4" />
             <p className={`${TYPOGRAPHY.TITLE1}`}>생활</p>
           </div>
-          {renderButtons(['집콕', '밖콕'], lifestyle, setLifestyle)}
-          {renderButtons(['아침 샤워', '저녁 샤워'], showerTime, setShowerTime)}
-          {renderButtons(['개인용품 공유 가능', '개인용품 공유 불가능'], itemShare, setItemShare)}
+          {renderButtons(['집콕', '밖콕'], lifestyle, setLifestyle, !lifestyle)}
+          {renderButtons(['아침 샤워', '저녁 샤워'], showerTime, setShowerTime, !showerTime)}
+          {renderButtons(
+            ['개인용품 공유 가능', '개인용품 공유 불가능'],
+            itemShare,
+            setItemShare,
+            !itemShare
+          )}
         </div>
 
         {/* 소리 */}
@@ -134,8 +164,8 @@ const Lifestylepattern = () => {
             <img src="/icons/mypage_sound.svg" className="w-4 h-4" />
             <p className={`${TYPOGRAPHY.TITLE1}`}>소리</p>
           </div>
-          {renderButtons(['이어폰 사용', '스피커 사용'], soundTool, setSoundTool)}
-          {renderButtons(['기숙사 내 통화', '기숙사 밖 통화'], callPlace, setCallPlace)}
+          {renderButtons(['이어폰 사용', '스피커 사용'], soundTool, setSoundTool, !soundTool)}
+          {renderButtons(['기숙사 내 통화', '기숙사 밖 통화'], callPlace, setCallPlace, !callPlace)}
         </div>
 
         {/* 소통 */}
@@ -144,7 +174,7 @@ const Lifestylepattern = () => {
             <img src="/icons/mypage_chat.svg" className="w-4 h-4" />
             <p className={`${TYPOGRAPHY.TITLE1}`}>소통</p>
           </div>
-          {renderButtons(['내향적', '외향적'], socialType, setSocialType)}
+          {renderButtons(['내향적', '외향적'], socialType, setSocialType, !socialType)}
         </div>
 
         {/* 정리 */}
@@ -153,7 +183,7 @@ const Lifestylepattern = () => {
             <img src="/icons/mypage_clean.svg" className="w-4 h-4" />
             <p className={`${TYPOGRAPHY.TITLE1}`}>정리</p>
           </div>
-          {renderButtons(['위생에 민감해요', '위생에 둔해요'], cleaning, setCleaning)}
+          {renderButtons(['위생에 민감해요', '위생에 둔해요'], cleaning, setCleaning, !cleaning)}
         </div>
 
         {/* 습관 */}
@@ -162,16 +192,20 @@ const Lifestylepattern = () => {
             <img src="/icons/mypage_Person.svg" className="w-4 h-4" />
             <p className={`${TYPOGRAPHY.TITLE1}`}>습관</p>
           </div>
-          {renderButtons(['흡연자', '비흡연자'], smoking, setSmoking)}
-          {renderButtons(['기숙사 내 취식 가능', '기숙사 내 취식 불가'], dormEat, setDormEat)}
+          {renderButtons(['흡연자', '비흡연자'], smoking, setSmoking, !smoking)}
+          {renderButtons(
+            ['기숙사 내 취식 가능', '기숙사 내 취식 불가'],
+            dormEat,
+            setDormEat,
+            !dormEat
+          )}
         </div>
       </div>
 
-      {/* 작성 완료 버튼 */}
+      {/* 완료 버튼 */}
       <div className="w-[375px] px-5 py-6">
         <button
-          disabled={!isFormValid}
-          onClick={() => navigate('/Welcome')}
+          onClick={handleSubmit}
           className={`w-full h-[48px] rounded-md mt-4 ${
             isFormValid ? 'bg-black text-white' : 'bg-gray-300 text-white'
           }`}
@@ -179,6 +213,26 @@ const Lifestylepattern = () => {
           작성 완료
         </button>
       </div>
+
+      {/* 모달 */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl w-[336px] h-[184px] text-center">
+            <div className="py-[35px] mb-[2px]">
+              <p className={`${TYPOGRAPHY.BODY3} items-center justify-center py-4`}>
+                모든 생활 패턴을 선택해주세요.
+              </p>
+            </div>
+            <Button
+              size="lg"
+              onClick={() => setShowModal(false)}
+              className="w-full h-[56px] bg-black text-white rounded-b-lg"
+            >
+              확인
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

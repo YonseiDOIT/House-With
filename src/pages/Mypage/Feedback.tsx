@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { TYPOGRAPHY } from '../../constants/typography';
+import { COLORS } from '../../constants/colors';
 
 const Feedback = () => {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ const Feedback = () => {
   return (
     <div className="flex flex-col items-center w-full max-w-[375px] mx-auto min-h-screen bg-white">
       {/* 상단 헤더 */}
-      <div className="w-[375px] h-[48px] flex items-center justify-start px-4 py-3 gap-6">
+      <div className="w-[375px] h-[48px] flex items-center justify-start px-4 py-3 mt-6 gap-[90px]">
         <button
           onClick={() => navigate(-1)}
           aria-label="뒤로가기"
@@ -33,7 +34,9 @@ const Feedback = () => {
         >
           <img src="/icons/chevron_left.svg" alt="뒤로가기" />
         </button>
-        <p className={`${TYPOGRAPHY.TITLE1}`}>내가 받은 피드백</p>
+        <p style={{ color: COLORS.GRAYSCALE.B }} className={`${TYPOGRAPHY.TITLE1}`}>
+          내가 받은 피드백
+        </p>
       </div>
 
       {/* 피드백 내용 */}

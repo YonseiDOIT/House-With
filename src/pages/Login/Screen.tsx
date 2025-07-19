@@ -6,10 +6,6 @@ import { useNavigate } from 'react-router-dom';
 const Screen = () => {
   const navigate = useNavigate();
 
-  const handleStart = () => {
-    navigate('/login/screen');
-  };
-
   return (
     <div className="flex flex-col items-start justify-start w-full max-w-[375px] mx-auto min-h-screen py-6">
       {/* 내비게이션 바*/}
@@ -37,24 +33,41 @@ const Screen = () => {
 
       {/* 하단: 로그인 버튼_카카오 */}
       <div className="flex items-center justify-center w-full h-[64px] px-6">
-        <Button size="lg" onClick={handleStart}>
-          카카오 로그인
+        <Button
+          onClick={() => navigate('/emailinput')}
+          className="w-[336px] h-[48px] p-0 bg-[#FEE500] rounded-[10px]"
+        >
+          <img
+            src="/image/kakao_login.png"
+            alt="카카오 로그인"
+            className="object-contain h-[48px] w-[336px]"
+          />
         </Button>
       </div>
 
       {/* 하단: 로그인 버튼_네이버 */}
-      <div className="flex items-center justify-center w-full h-[64px] px-6">
-        <Button size="lg" onClick={handleStart}>
-          네이버 로그인
-        </Button>
+      <div className="flex items-center justify-center w-full h-[64px] px-6 mt-2">
+        <button
+          onClick={() => navigate('/emailinput')}
+          className="flex flex-row items-center justify-center w-[336px] h-[48px] p-0 bg-[#03C75A] rounded-[10px] gap-2
+          "
+        >
+          <img
+            src="/image/naver_login.png"
+            alt="네이버 로그인"
+            className="object-contain w-9 h-9"
+          />
+          <p className={`${TYPOGRAPHY.BODY3} leading-snug w-24 h-5`}>네이버 로그인</p>
+        </button>
       </div>
 
       <div className="flex items-center justify-center w-full h-[64px] px-6">
-        <p className={`${TYPOGRAPHY.BODY3} ${COLORS.GRAYSCALE.G6} leading-snug`}>
+        <p style={{ color: COLORS.GRAYSCALE.G6 }} className={`${TYPOGRAPHY.BODY3} leading-snug`}>
           아직 하우스윗의 회원이 아니신가요? {''}
           <span
+            style={{ color: COLORS.GRAYSCALE.G6 }}
             onClick={() => navigate('/emailinput')}
-            className={`${TYPOGRAPHY.TITLE1} ${COLORS.GRAYSCALE.G6} leading-snug`}
+            className={`${TYPOGRAPHY.TITLE1} leading-snug`}
           >
             회원가입하기
           </span>

@@ -87,7 +87,7 @@ const EmailinputPage = () => {
         <button
           onClick={() => navigate(-1)}
           aria-label="뒤로가기"
-          className="px-0 py-0 bg-transparent"
+          className="w-8 h-8 px-0 py-0 bg-transparent"
         >
           <img src="../public/icons/chevron_left.svg" alt="뒤로가기" />
         </button>
@@ -170,12 +170,16 @@ const EmailinputPage = () => {
 
           {/* 하단 안내 (문의하기 링크) */}
           <div className="flex space-x-14 justify-center w-full h-[64px] px-11 py-5 ">
-            <p className={`${TYPOGRAPHY.BODY3} ${COLORS.GRAYSCALE.G6} leading-snug`}>
+            <p
+              style={{ color: COLORS.GRAYSCALE.G6 }}
+              className={`${TYPOGRAPHY.BODY3} leading-snug`}
+            >
               메일이 오지 않았나요?{''}
             </p>
             <p
+              style={{ color: COLORS.GRAYSCALE.G6 }}
               onClick={() => navigate('/emailinput')}
-              className={`${TYPOGRAPHY.TITLE1} ${COLORS.GRAYSCALE.G6} leading-snug`}
+              className={`${TYPOGRAPHY.TITLE1} leading-snug`}
             >
               문의하기
             </p>

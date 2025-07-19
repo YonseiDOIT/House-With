@@ -45,7 +45,7 @@ const Intro = () => {
 
       {/* 하단: 버튼 */}
       <div className="flex items-center justify-center w-full h-[64px] px-6">
-        <Button size="lg" onClick={handleStart}>
+        <Button size="xl" onClick={handleStart}>
           지금 룸메이트 찾기
         </Button>
       </div>

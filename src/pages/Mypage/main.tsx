@@ -1,12 +1,16 @@
 import { TYPOGRAPHY } from '../../constants/typography';
-import { useNavigate } from 'react-router-dom';
 import { COLORS } from '../../constants/colors';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const MyPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  const isActive = (path: string) => currentPath === path;
 
   return (
-    <div className="flex flex-col items-center justify-between w-full max-w-[375px] mx-auto min-h-screen">
+    <div className="flex flex-col items-center justify-between w-full max-w-[375px] mx-auto min-h-screen pb-[72px]">
       {/* 상단 내용 */}
       <div className="flex flex-col items-center w-[375px] mt-6">
         {/* 마이페이지 제목 */}
@@ -45,11 +49,14 @@ const MyPage = () => {
         <div className="flex flex-col w-full gap-4 mt-[52px]">
           {/* 나의 하우스 */}
           <div>
-            <p className={`${TYPOGRAPHY.TITLE2} px-6 py-[13px] mb-2`}>나의 하우스</p>
+            <p className={`${TYPOGRAPHY.TITLE2} px-6 py-[13px]`}>나의 하우스</p>
             <div className="flex flex-col gap-2">
               <div className="px-6 py-[14.5px] flex items-center justify-between">
                 <p className={`${TYPOGRAPHY.BODY3}`}>내가 저장한 목록</p>
-                <button onClick={() => navigate('/')} className="px-0 py-0 bg-transparent">
+                <button
+                  onClick={() => navigate('/mypage-edit')}
+                  className="px-0 py-0 bg-transparent"
+                >
                   <img src="../public/icons/chevron_right.svg" className="w-6 h-6" />
                 </button>
               </div>
@@ -81,32 +88,47 @@ const MyPage = () => {
       </div>
 
       {/* 하단 네비게이션 */}
-      <div className="w-full h-[56px] border-t border-gray-200 flex justify-around items-center">
+      <div className="fixed bottom-0 left-0 w-full h-[56px] border-t border-gray-200 flex justify-around items-center bg-white z-50">
         {/* 홈 */}
         <button
           onClick={() => navigate('/home')}
-          className="flex flex-col items-center text-gray-400"
+          className={`flex flex-col items-center bg-transparent ${isActive('/home') ? 'text-[#FF7A00]' : 'text-gray-400'}`}
         >
-          <img src="/icons/home_house_gray.svg" className="w-5 h-5" />
-          <span className="mt-1 text-xs">홈</span>
+          <img
+            src={isActive('/home') ? '/icons/home_house_orange.svg' : '/icons/home_house_gray.svg'}
+            className="w-5 h-5"
+          />
+          <span className={`mt-1 text-xs ${isActive('/home') ? 'font-semibold' : ''}`}>홈</span>
         </button>
 
-        {/* 편지 */}
+        {/* 관리 */}
         <button
           onClick={() => navigate('/letter')}
-          className="flex flex-col items-center text-gray-400"
+          className={`flex flex-col items-center bg-transparent ${isActive('/letter') ? 'text-[#FF7A00]' : 'text-gray-400'}`}
         >
-          <img src="/icons/tab_letter.svg" className="w-6 h-6" />
-          <span className="mt-1 text-xs">편지</span>
+          <img
+            src={
+              isActive('/letter')
+                ? '/icons/home_message_orange.svg'
+                : '/icons/home_message_gray.svg'
+            }
+            className="w-6 h-6"
+          />
+          <span className={`mt-1 text-xs ${isActive('/letter') ? 'font-semibold' : ''}`}>관리</span>
         </button>
 
-        {/* 마이페이지 (활성 상태) */}
+        {/* 마이페이지 */}
         <button
           onClick={() => navigate('/mypage-main')}
-          className="flex flex-col items-center text-[#FF7A00]"
+          className={`flex flex-col items-center bg-transparent ${isActive('/mypage-main') ? 'text-[#FF7A00]' : 'text-gray-400'}`}
         >
-          <img src="/icons/tab_mypage_active.svg" className="w-5 h-5" />
-          <span className="mt-1 text-xs font-semibold">마이페이지</span>
+          <img
+            src={isActive('/mypage-main') ? '/icons/mypage_Person.svg' : '/icons/admin_people.svg'}
+            className="w-5 h-5"
+          />
+          <span className={`mt-1 text-xs ${isActive('/mypage-main') ? 'font-semibold' : ''}`}>
+            마이페이지
+          </span>
         </button>
       </div>
     </div>

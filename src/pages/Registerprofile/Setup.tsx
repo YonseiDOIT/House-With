@@ -52,7 +52,7 @@ const Setup = () => {
         <button
           onClick={() => navigate(-1)}
           aria-label="뒤로가기"
-          className="px-0 py-0 bg-transparent"
+          className="w-8 h-8 px-0 py-0 bg-transparent"
         >
           <img src="/icons/chevron_left.svg" alt="뒤로가기" />
         </button>
@@ -87,7 +87,10 @@ const Setup = () => {
           {/* 입력창 */}
           <input
             value={nickname}
-            onChange={e => setNickname(e.target.value)}
+            onChange={e => {
+              setNickname(e.target.value);
+              setIsNicknameChecked(false); // ✅ 닉네임 수정 시 중복확인 상태 초기화
+            }}
             type="text"
             placeholder="국문 · 영문 2-8자"
             style={{ backgroundColor: COLORS.GRAYSCALE.G1 }}
@@ -140,7 +143,7 @@ const Setup = () => {
         <select
           value={degree}
           onChange={e => setDegree(e.target.value)}
-          style={{ backgroundColor: COLORS.GRAYSCALE.G1 }}
+          style={{ backgroundColor: COLORS.GRAYSCALE.G1, color: COLORS.GRAYSCALE.G6 }}
           className="w-[250px] h-12 px-4 rounded-md"
         >
           <option disabled value="" className="text-gray-400">

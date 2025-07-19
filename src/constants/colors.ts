@@ -4,6 +4,7 @@ export const COLORS = {
   SECONDARY: {
     HW_Red1: '#FBF1F2',
     HW_Re2: '#FC5223',
+    HW_Re3: '#FED7CC',
     HW_Green1: '#DFF5EB',
     HW_Green2: '#5DC899',
     HW_Green3: '#00DB5D',

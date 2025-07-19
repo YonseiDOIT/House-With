@@ -33,13 +33,29 @@ const Edit = () => {
   const [smoking, setSmoking] = useState('');
   const [dormEat, setDormEat] = useState('');
 
-  // 공통 버튼 스타일 함수
-  const getButtonStyle = (isSelected: boolean) => ({
-    backgroundColor: isSelected ? '#000000' : COLORS.GRAYSCALE.G1,
-    color: isSelected ? '#FFFFFF' : '#000000',
-  });
+  // 모든 항목이 선택되었는지 여부 확인 (소개글은 제외)
+  const isFormComplete =
+    nickname &&
+    sleepType &&
+    snoreType &&
+    nightWorkType &&
+    lifestyle &&
+    showerTime &&
+    itemShare &&
+    soundTool &&
+    callPlace &&
+    socialType &&
+    cleaning &&
+    smoking &&
+    dormEat;
 
-  // 버튼 UI
+  const highlightEmpty = !isFormComplete;
+
+  const getButtonStyle = (isSelected: boolean) => `
+    px-4 py-2 text-sm rounded-full border
+    ${isSelected ? 'bg-black text-white' : 'bg-gray-200 text-black'}
+  `;
+
   const renderButtons = (
     options: string[],
     selected: string,
@@ -50,8 +66,7 @@ const Edit = () => {
         <button
           key={option}
           onClick={() => setSelected(option)}
-          style={getButtonStyle(selected === option)}
-          className="px-4 py-2 text-sm rounded-full"
+          className={getButtonStyle(selected === option)}
         >
           {option}
         </button>
@@ -60,7 +75,7 @@ const Edit = () => {
   );
 
   return (
-    <div className="flex flex-col items-start justify-start w-full max-w-[375px] mx-auto min-h-screen py-6">
+    <div className="flex flex-col items-start justify-start w-full max-w-[375px] mx-auto min-h-screen py-6 pb-[72px]">
       {/* 상단 뒤로가기 버튼 */}
       <div className="w-[375px] h-[48px] flex items-center justify-between px-4 py-3">
         <button
@@ -71,7 +86,9 @@ const Edit = () => {
           <img src="/icons/chevron_left.svg" alt="뒤로가기" />
         </button>
         <button
-          style={{ color: COLORS.PRIMARY }}
+          disabled={!isFormComplete}
+          onClick={() => console.log('저장')}
+          style={{ color: isFormComplete ? COLORS.PRIMARY : COLORS.GRAYSCALE.G6 }}
           className={`${TYPOGRAPHY.TITLE1} px-0 py-0 bg-transparent`}
         >
           저장
@@ -85,7 +102,12 @@ const Edit = () => {
 
       {/* 닉네임 변경 */}
       <div className="w-full px-5 h-28">
-        <p className={`${TYPOGRAPHY.TITLE1} mb-2`}>닉네임</p>
+        <div className="flex items-center justify-between mb-2">
+          <p className={`${TYPOGRAPHY.TITLE1}`}>닉네임</p>
+          <button className="px-2 py-1 text-xs text-gray-400 bg-transparent border border-gray-300 rounded">
+            중복 확인
+          </button>
+        </div>
         <input
           type="text"
           value={nickname}
@@ -98,7 +120,7 @@ const Edit = () => {
       {/* 소개글 변경 */}
       <div className="w-full px-5 h-28">
         <div className="flex items-center justify-between mb-2">
-          <p className={`${TYPOGRAPHY.TITLE1}`}>소개글</p>
+          <p className={`${TYPOGRAPHY.TITLE1}`}>소개글 (선택)</p>
           <p className="text-xs text-gray-500">{introduction.length}/50</p>
         </div>
         <input
@@ -112,6 +134,17 @@ const Edit = () => {
           placeholder="소개글을 입력해주세요"
           className="w-full h-12 px-4 text-sm placeholder-gray-400 border border-gray-300 rounded-lg"
         />
+      </div>
+
+      {/* 설명2 */}
+      <div className="w-[375px] px-5 py-4 flex flex-row gap-3">
+        <p className={`${TYPOGRAPHY.TITLE1} leading-snug whitespace-pre-line`}>생활 패턴</p>
+        <p
+          style={{ color: highlightEmpty ? COLORS.SECONDARY.HW_Re2 : COLORS.GRAYSCALE.G8 }}
+          className={`${TYPOGRAPHY.BODY3} leading-snug whitespace-pre-line`}
+        >
+          *모든 생활 패턴을 선택해주세요!
+        </p>
       </div>
 
       {/* 항목들 */}

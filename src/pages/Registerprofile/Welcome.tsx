@@ -12,7 +12,7 @@ const Welcome = () => {
         <button
           onClick={() => navigate(-1)}
           aria-label="뒤로가기"
-          className="px-0 py-0 bg-transparent"
+          className="w-8 h-8 px-0 py-0 bg-transparent"
         >
           <img src="/icons/chevron_left.svg" alt="뒤로가기" />
         </button>
@@ -39,7 +39,7 @@ const Welcome = () => {
 
       {/* 하단: 버튼 */}
       <div className="flex items-center justify-center w-full h-[64px] px-6">
-        <Button size="lg" onClick={() => navigate('/mypage-main')}>
+        <Button size="xl" onClick={() => navigate('/mypage-main')}>
           하웃스윗 시작하기
         </Button>
       </div>
