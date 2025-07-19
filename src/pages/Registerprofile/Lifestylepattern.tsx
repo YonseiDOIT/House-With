@@ -1,4 +1,3 @@
-// 생략된 import는 기존 유지
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { TYPOGRAPHY } from '../../constants/typography';
@@ -22,7 +21,6 @@ const Lifestylepattern = () => {
   const [smoking, setSmoking] = useState('');
   const [dormEat, setDormEat] = useState('');
 
-  // 팝업 및 하이라이트 상태
   const [showModal, setShowModal] = useState(false);
   const [highlightEmpty, setHighlightEmpty] = useState(false);
 
@@ -40,7 +38,6 @@ const Lifestylepattern = () => {
     smoking &&
     dormEat;
 
-  // 공통 버튼 스타일 (선택 여부 + 하이라이트 여부)
   const getButtonStyle = (isSelected: boolean, isHighlighted: boolean): React.CSSProperties => {
     if (isSelected) return { backgroundColor: '#000000', color: '#FFFFFF' };
     if (isHighlighted) return { backgroundColor: '#FFE5E5', color: '#000000' };
@@ -67,12 +64,46 @@ const Lifestylepattern = () => {
     </div>
   );
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!isFormValid) {
       setShowModal(true);
       setHighlightEmpty(true);
-    } else {
-      navigate('/Welcome');
+      return;
+    }
+
+    const requestBody = {
+      sleep_pattern: sleepType,
+      snoring: snoreType,
+      night_work: nightWorkType,
+      home_leaving: lifestyle,
+      shower_pattern: showerTime,
+      sharing: itemShare,
+      speaker_use: soundTool,
+      call_pattern: callPlace,
+      introvert: socialType,
+      sanitary: cleaning,
+      smoke: smoking,
+      available_eat: dormEat,
+    };
+
+    try {
+      const res = await fetch(`http://localhost:8080/user-info/patternInfo?memberId=yeoun`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (res.ok) {
+        console.log('성공적으로 전송되었습니다');
+        navigate('/Welcome');
+      } else {
+        const errorText = await res.text();
+        console.error('전송 실패:', res.status, errorText);
+      }
+    } catch (error) {
+      console.error('요청 중 오류 발생:', error);
     }
   };
 
@@ -102,13 +133,13 @@ const Lifestylepattern = () => {
       {/* 설명 */}
       <div className="w-[375px] px-5 py-4">
         <p className={`${TYPOGRAPHY.BODY3} leading-snug whitespace-pre-line`}>
-          각각에 카테고리의 모든 생활 패턴을 알려주세요.{'\n'}
+          각각의 카테고리의 모든 생활 패턴을 알려주세요.{'\n'}
           다른 사용자들이 확인할 수 있으며,{'\n'}
           추후 마이페이지에서 수정 가능합니다.
         </p>
       </div>
 
-      {/* 설명2 */}
+      {/* 경고 */}
       <div className="w-[375px] px-5 py-4 flex flex-row gap-3">
         <p className={`${TYPOGRAPHY.TITLE1} leading-snug whitespace-pre-line`}>생활 패턴</p>
         <p

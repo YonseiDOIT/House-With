@@ -1,13 +1,19 @@
-// 생략된 import 부분은 기존 그대로 유지
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 import { TYPOGRAPHY } from '../../constants/typography';
 import { COLORS } from '../../constants/colors';
+import { useRef } from 'react';
+import CustomSelect from '../../components/CustomSelect';
+import axios from 'axios';
+import { useState, useEffect } from 'react';
 
 const Edit = () => {
   const navigate = useNavigate();
   const [nickname, setNickname] = useState('');
   const [introduction, setIntroduction] = useState('');
+  const [gender, setGender] = useState('남성'); // 기본값: 남성
+
+  const memberId = 1; // TODO: 실제 memberId 연동 필요
+  const [degree, setDegree] = useState('');
 
   // 취침
   const [sleepType, setSleepType] = useState('');
@@ -35,19 +41,19 @@ const Edit = () => {
 
   // 모든 항목이 선택되었는지 여부 확인 (소개글은 제외)
   const isFormComplete =
-    nickname &&
-    sleepType &&
-    snoreType &&
-    nightWorkType &&
-    lifestyle &&
-    showerTime &&
-    itemShare &&
-    soundTool &&
-    callPlace &&
-    socialType &&
-    cleaning &&
-    smoking &&
-    dormEat;
+    !!nickname &&
+    !!sleepType &&
+    !!snoreType &&
+    !!nightWorkType &&
+    !!lifestyle &&
+    !!showerTime &&
+    !!itemShare &&
+    !!soundTool &&
+    !!callPlace &&
+    !!socialType &&
+    !!cleaning &&
+    !!smoking &&
+    !!dormEat;
 
   const highlightEmpty = !isFormComplete;
 
@@ -74,6 +80,124 @@ const Edit = () => {
     </div>
   );
 
+  // 사진 변경 관련 코드
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // 남성에 따른 학사 목록
+  const maleDormitories = ['매지학사1', '매지학사3_남', '세연학사1', '세연학사2', '청연학사1'];
+  // 여성에 따른 학사 목록
+  const femaleDormitories = ['매지학사2', '매지학사3_여', '세연학사3', '청연학사2'];
+
+  const handleSave = async () => {
+    if (isDuplicated !== false) {
+      alert('닉네임 중복 확인이 필요합니다.');
+      return;
+    }
+
+    try {
+      const payload = {
+        name: '',
+        introduction_comment: introduction,
+        phone: '',
+        email: '',
+        nickname: nickname,
+        sex: gender,
+        dormitoryName: degree,
+        livingPattern: {
+          id: 0,
+          member: {
+            id: 0,
+            joinRequests: [],
+            livingPattern: '',
+            username: '',
+            password: '',
+            name: '',
+            introduction_comment: '',
+            phone: '',
+            email: '',
+            nickname: '',
+            sex: '',
+            dormitoryName: '',
+            memberStatus: 'NON',
+          },
+          sleep_pattern: sleepType,
+          snoring: snoreType,
+          night_work: nightWorkType,
+          home_leaving: lifestyle,
+          shower_pattern: showerTime,
+          sharing: itemShare,
+          speaker_use: soundTool,
+          call_pattern: callPlace,
+          introvert: socialType,
+          sanitary: cleaning,
+          smoke: smoking,
+          available_eat: dormEat,
+        },
+      };
+
+      const response = await axios.post(
+        `http://localhost:8080/MyPage/Info/modify?memberId=${memberId}`,
+        payload
+      );
+      alert('저장 성공!');
+      console.log('응답:', response.data);
+    } catch (error) {
+      console.error('저장 실패:', error);
+      alert('저장에 실패했습니다.');
+    }
+  };
+
+  const [isChecking, setIsChecking] = useState(false);
+  const [isDuplicated, setIsDuplicated] = useState<boolean | null>(null); // null: 초기값, true: 중복, false: 사용 가능
+
+  const handleCheckNickname = async () => {
+    if (!nickname.trim()) return alert('닉네임을 입력해주세요.');
+    try {
+      setIsChecking(true);
+      const res = await axios.get(`http://localhost:8080/MyPage/Info/nicDup`, {
+        params: { nickname },
+      });
+
+      // 예시: 백엔드에서 { duplicated: true } 또는 { duplicated: false }로 응답한다고 가정
+      const duplicated = res.data?.duplicated;
+
+      if (duplicated === true) {
+        setIsDuplicated(true);
+        alert('이미 사용 중인 닉네임입니다.');
+      } else {
+        setIsDuplicated(false);
+        alert('사용 가능한 닉네임입니다!');
+      }
+    } catch (error) {
+      console.error('중복 확인 실패:', error);
+      alert('중복 확인 중 오류가 발생했습니다.');
+    } finally {
+      setIsChecking(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/MyPage/Info', {
+          params: {
+            memberId: memberId,
+          },
+        });
+
+        const data = response.data;
+        setNickname(data.nickname || '');
+        setIntroduction(data.introduction_comment || '');
+        setGender(data.sex || '남성');
+      } catch (error) {
+        console.error('사용자 정보 불러오기 실패:', error);
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
+
   return (
     <div className="flex flex-col items-start justify-start w-full max-w-[375px] mx-auto min-h-screen py-6 pb-[72px]">
       {/* 상단 뒤로가기 버튼 */}
@@ -87,7 +211,7 @@ const Edit = () => {
         </button>
         <button
           disabled={!isFormComplete}
-          onClick={() => console.log('저장')}
+          onClick={handleSave}
           style={{ color: isFormComplete ? COLORS.PRIMARY : COLORS.GRAYSCALE.G6 }}
           className={`${TYPOGRAPHY.TITLE1} px-0 py-0 bg-transparent`}
         >
@@ -97,15 +221,44 @@ const Edit = () => {
 
       {/* 상단: 이미지 변경 */}
       <div className="w-full h-[145px] flex items-center justify-center">
-        <div className="w-24 h-24 mb-2 bg-gray-200 rounded-full" />
+        <div
+          onClick={() => inputRef.current?.click()}
+          className="relative flex items-center justify-center w-24 h-24 mb-2 overflow-hidden bg-gray-200 rounded-full cursor-pointer"
+        >
+          {imageSrc ? (
+            <img src={imageSrc} alt="프로필" className="object-cover w-full h-full" />
+          ) : (
+            <img
+              src="/icons/mypage_edit-contained.svg" // 연필 아이콘 경로
+              alt="편집 아이콘"
+            />
+          )}
+        </div>
+
+        <input
+          type="file"
+          accept="image/*"
+          onChange={e => {
+            const file = e.target.files?.[0];
+            if (file) {
+              setImageSrc(URL.createObjectURL(file));
+            }
+          }}
+          ref={inputRef}
+          className="hidden"
+        />
       </div>
 
       {/* 닉네임 변경 */}
       <div className="w-full px-5 h-28">
         <div className="flex items-center justify-between mb-2">
           <p className={`${TYPOGRAPHY.TITLE1}`}>닉네임</p>
-          <button className="px-2 py-1 text-xs text-gray-400 bg-transparent border border-gray-300 rounded">
-            중복 확인
+          <button
+            onClick={handleCheckNickname}
+            className="px-2 py-1 text-xs text-gray-400 bg-transparent border border-gray-300 rounded"
+            disabled={isChecking}
+          >
+            {isChecking ? '확인 중...' : '중복 확인'}
           </button>
         </div>
         <input
@@ -115,6 +268,12 @@ const Edit = () => {
           placeholder="닉네임을 입력해주세요"
           className="w-full h-12 px-4 text-sm border border-gray-300 rounded-lg"
         />
+        {isDuplicated === true && (
+          <p className="mt-1 text-xs text-red-500">이미 사용 중인 닉네임입니다.</p>
+        )}
+        {isDuplicated === false && (
+          <p className="mt-1 text-xs text-green-500">사용 가능한 닉네임입니다.</p>
+        )}
       </div>
 
       {/* 소개글 변경 */}
@@ -134,6 +293,26 @@ const Edit = () => {
           placeholder="소개글을 입력해주세요"
           className="w-full h-12 px-4 text-sm placeholder-gray-400 border border-gray-300 rounded-lg"
         />
+      </div>
+
+      {/* 학사 선택 */}
+      <div className="flex flex-row items-start justify-center w-full h-16 gap-3 px-5">
+        <p className={`${TYPOGRAPHY.TITLE2} w-[79px] h-12 px-4 py-[13px]`}>학사</p>
+
+        {gender ? (
+          <CustomSelect
+            options={gender === '남성' ? maleDormitories : femaleDormitories}
+            selected={degree}
+            setSelected={setDegree}
+          />
+        ) : (
+          <div
+            style={{ color: COLORS.GRAYSCALE.G6, borderColor: COLORS.GRAYSCALE.G6 }}
+            className="w-[250px] h-12 rounded-md border px-4 flex items-center"
+          >
+            성별을 먼저 선택해주세요
+          </div>
+        )}
       </div>
 
       {/* 설명2 */}
@@ -207,6 +386,18 @@ const Edit = () => {
           </div>
           {renderButtons(['흡연자', '비흡연자'], smoking, setSmoking)}
           {renderButtons(['기숙사 내 취식 가능', '기숙사 내 취식 불가'], dormEat, setDormEat)}
+        </div>
+      </div>
+
+      {/* 오픈 채팅 링크 */}
+      <div className="w-full h-[112px] mt-4">
+        <p className={`${TYPOGRAPHY.TITLE2} px-5 py-[13px]`}>오픈 채팅</p>
+        <div className="flex justify-center w-full h-16 px-5">
+          <input
+            type="text"
+            placeholder="오픈 채팅 링크를 입력해주세요"
+            className="w-full h-12 px-4 text-sm placeholder-gray-400 border border-gray-300 rounded-lg"
+          />
         </div>
       </div>
     </div>

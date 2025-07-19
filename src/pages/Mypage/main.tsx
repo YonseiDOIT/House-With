@@ -54,7 +54,7 @@ const MyPage = () => {
               <div className="px-6 py-[14.5px] flex items-center justify-between">
                 <p className={`${TYPOGRAPHY.BODY3}`}>내가 저장한 목록</p>
                 <button
-                  onClick={() => navigate('/mypage-edit')}
+                  onClick={() => navigate('/mypage-store')}
                   className="px-0 py-0 bg-transparent"
                 >
                   <img src="../public/icons/chevron_right.svg" className="w-6 h-6" />

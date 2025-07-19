@@ -155,16 +155,16 @@ const EmailinputPage = () => {
             </Button>
           </div>
 
-          {/* 이메일 재전송 버튼 (타이머 초기화) */}
+          {/* 인증 번호 재전송 버튼 (타이머 초기화) */}
           <div className="flex flex-col items-center justify-center w-full px-5 py-2 mb-4 space-y-2">
             <Button
               size="xl"
               onClick={() => {
                 setTimeLeft(120); // 타이머 초기화
-                console.log('이메일 재전송');
+                console.log('인증 번호 재전송');
               }}
             >
-              이메일 재전송
+              인증 번호 재전송
             </Button>
           </div>
 
