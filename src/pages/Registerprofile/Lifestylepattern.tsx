@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { TYPOGRAPHY } from '../../constants/typography';
 import { COLORS } from '../../constants/colors';
 import Button from '../../components/Button/Button';
+import axios from 'axios';
 
 const Lifestylepattern = () => {
   const navigate = useNavigate();
@@ -64,6 +65,8 @@ const Lifestylepattern = () => {
     </div>
   );
 
+  const memberId = 1; // 임시 수동 memberId, 실제 연동 시 수정 필요
+
   const handleSubmit = async () => {
     if (!isFormValid) {
       setShowModal(true);
@@ -71,39 +74,37 @@ const Lifestylepattern = () => {
       return;
     }
 
-    const requestBody = {
-      sleep_pattern: sleepType,
-      snoring: snoreType,
-      night_work: nightWorkType,
-      home_leaving: lifestyle,
-      shower_pattern: showerTime,
-      sharing: itemShare,
-      speaker_use: soundTool,
-      call_pattern: callPlace,
-      introvert: socialType,
-      sanitary: cleaning,
-      smoke: smoking,
-      available_eat: dormEat,
-    };
-
     try {
-      const res = await fetch(`http://localhost:8080/user-info/patternInfo?memberId=yeoun`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await axios.post(
+        // ✅ memberId를 URL 쿼리 파라미터로 전달
+        `http://ec2-52-78-243-69.ap-northeast-2.compute.amazonaws.com:8080/user-info/patternInfo?memberId=${memberId}`,
+        {
+          // 🔽 LivingPatternDTO에 정의된 12개 필드만 전달
+          sleep_pattern: sleepType,
+          snoring: snoreType,
+          night_work: nightWorkType,
+          home_leaving: lifestyle,
+          shower_pattern: showerTime,
+          sharing: itemShare,
+          speaker_use: soundTool,
+          call_pattern: callPlace,
+          introvert: socialType,
+          sanitary: cleaning,
+          smoke: smoking,
+          available_eat: dormEat,
         },
-        body: JSON.stringify(requestBody),
-      });
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-      if (res.ok) {
-        console.log('성공적으로 전송되었습니다');
-        navigate('/Welcome');
-      } else {
-        const errorText = await res.text();
-        console.error('전송 실패:', res.status, errorText);
-      }
+      console.log('요청 성공:', response.data);
+      navigate('/Welcome');
     } catch (error) {
-      console.error('요청 중 오류 발생:', error);
+      console.error('요청 실패:', error);
+      alert('전송에 실패했습니다. 다시 시도해주세요.');
     }
   };
 

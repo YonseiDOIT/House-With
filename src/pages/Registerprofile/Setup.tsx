@@ -5,18 +5,21 @@ import { TYPOGRAPHY } from '../../constants/typography';
 import { COLORS } from '../../constants/colors';
 import Button from '../../components/Button/Button';
 import CustomSelect from '../../components/CustomSelect';
-import { useEffect } from 'react';
 
 const Setup = () => {
   const navigate = useNavigate(); // 페이지 이동을 위한 라우터 훅
-  const [email, setEmail] = useState('');
 
-  useEffect(() => {
-    const savedEmail = localStorage.getItem('userEmail');
-    if (savedEmail) {
-      setEmail(savedEmail);
-    }
-  }, []);
+  const dormitoryEnumMap: Record<string, string> = {
+    매지학사1: 'MAEJI_1',
+    매지학사2: 'MAEJI_2',
+    매지학사3_남: 'MAEJI_3_MALE',
+    매지학사3_여: 'MAEJI_3_FEMALE',
+    세연학사1: 'SEYEON_1',
+    세연학사2: 'SEYEON_2',
+    세연학사3: 'SEYEON_3',
+    청연학사1: 'CHEONGYEON_1',
+    청연학사2: 'CHEONGYEON_2',
+  };
 
   // ========================================
   // 사용자 입력 값 상태 정의 (닉네임, 성별, 학사 선택)
@@ -48,11 +51,20 @@ const Setup = () => {
     }
 
     try {
-      const response = await fetch(`/user-info/nickDup?nickname=${encodeURIComponent(nickname)}`);
-      if (response.ok) {
-        setShowAvailableModal(true); // 중복 아님 → 사용 가능
+      const response = await fetch(
+        `http://ec2-52-78-243-69.ap-northeast-2.compute.amazonaws.com:8080/user-info/nickDup?nickname=${encodeURIComponent(nickname)}`
+      );
+
+      const result = await response.text(); // ⚠️ 문자열 응답 읽기
+
+      if (result === 'DUPLICATED') {
+        setShowUnavailableModal(true); // 사용 불가 모달
+        setIsNicknameChecked(false); // 중복이므로 유효하지 않음
+      } else if (result === 'NOT_DUPLICATED') {
+        setShowAvailableModal(true); // 사용 가능 모달
+        setIsNicknameChecked(true); // 사용 가능하므로 true
       } else {
-        setShowUnavailableModal(true); // 중복됨
+        alert(`예상치 못한 응답: ${result}`);
       }
     } catch (error) {
       console.error('닉네임 중복 확인 오류:', error);
@@ -190,18 +202,27 @@ const Setup = () => {
         <button
           disabled={!isFormValid}
           onClick={async () => {
+            const email = localStorage.getItem('email');
+            if (!email) {
+              alert('이메일 정보가 없습니다.');
+              return;
+            }
+
+            const genderEnum = gender === '남성' ? 'MALE' : 'FEMALE';
+            const dormitoryEnum = dormitoryEnumMap[degree];
+
+            const query = new URLSearchParams({
+              email,
+              nickname,
+              sex: genderEnum,
+              dormitory: dormitoryEnum,
+            }).toString();
+
             try {
               const response = await fetch(
-                'http://ec2-52-78-243-69.ap-northeast-2.compute.amazonaws.com:8080/user-info/basicInfo',
+                `http://ec2-52-78-243-69.ap-northeast-2.compute.amazonaws.com:8080/user-info/basicInfo?${query}`,
                 {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    email,
-                    nickname,
-                    sex: gender,
-                    dormitory: degree,
-                  }),
                 }
               );
 

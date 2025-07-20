@@ -5,8 +5,10 @@ import { Mypage } from './routes/Mypage';
 function App() {
   return (
     <BrowserRouter>
-      <Routes>{OnboardingRoutes}</Routes>
-      <Routes>{Mypage}</Routes>
+      <Routes>
+        {OnboardingRoutes}
+        {Mypage}
+      </Routes>
     </BrowserRouter>
   );
 }

@@ -5,6 +5,7 @@ import { useRef } from 'react';
 import CustomSelect from '../../components/CustomSelect';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
+import Button from '../../components/Button/Button';
 
 const Edit = () => {
   const navigate = useNavigate();
@@ -89,38 +90,34 @@ const Edit = () => {
   // 여성에 따른 학사 목록
   const femaleDormitories = ['매지학사2', '매지학사3_여', '세연학사3', '청연학사2'];
 
-  const handleSave = async () => {
-    if (isDuplicated !== false) {
-      alert('닉네임 중복 확인이 필요합니다.');
-      return;
-    }
+  // 추가 정보 상태
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  // livingPattern id 상태 (필요시)
+  const [livingPatternId] = useState(0); // 실제 id가 있다면 불러와서 세팅
 
+  // 닉네임 중복 확인 모달 상태
+  const [showNicknameAvailableModal, setShowNicknameAvailableModal] = useState(false);
+  const [showNicknameUnavailableModal, setShowNicknameUnavailableModal] = useState(false);
+
+  // 저장 성공 모달 상태
+  const [showSaveSuccessModal, setShowSaveSuccessModal] = useState(false);
+
+  // 저장 실패 모달 상태
+  const [showSaveFailModal, setShowSaveFailModal] = useState(false);
+
+  const handleSave = async () => {
     try {
       const payload = {
-        name: '',
+        name: name,
         introduction_comment: introduction,
-        phone: '',
-        email: '',
+        phone: phone,
+        email: email,
         nickname: nickname,
-        sex: gender,
+        sex: gender === '남성' ? 'male' : 'female',
         dormitoryName: degree,
         livingPattern: {
-          id: 0,
-          member: {
-            id: 0,
-            joinRequests: [],
-            livingPattern: '',
-            username: '',
-            password: '',
-            name: '',
-            introduction_comment: '',
-            phone: '',
-            email: '',
-            nickname: '',
-            sex: '',
-            dormitoryName: '',
-            memberStatus: 'NON',
-          },
           sleep_pattern: sleepType,
           snoring: snoreType,
           night_work: nightWorkType,
@@ -135,16 +132,56 @@ const Edit = () => {
           available_eat: dormEat,
         },
       };
-
-      const response = await axios.post(
-        `http://localhost:8080/MyPage/Info/modify?memberId=${memberId}`,
+      console.log('POST payload:', payload);
+      await axios.post(
+        `http://ec2-52-78-243-69.ap-northeast-2.compute.amazonaws.com:8080/MyPage/Info/modify?memberId=${memberId}`,
         payload
       );
-      alert('저장 성공!');
-      console.log('응답:', response.data);
+      // 저장 후 GET으로 최신 정보 다시 불러오기
+      const response = await axios.get('http://ec2-52-78-243-69.ap-northeast-2.compute.amazonaws.com:8080/MyPage/Info', {
+        params: { memberId }
+      });
+      const data = response.data;
+      setNickname(data.nickname || '');
+      setIntroduction(data.introduction_comment || '');
+      setGender(data.sex === 'male' ? '남성' : '여성');
+      setDegree(data.dormitoryName || '');
+      if (data.livingPattern) {
+        setSleepType(data.livingPattern.sleep_pattern || '');
+        setSnoreType(data.livingPattern.snoring || '');
+        setNightWorkType(data.livingPattern.night_work || '');
+        setLifestyle(data.livingPattern.home_leaving || '');
+        setShowerTime(data.livingPattern.shower_pattern || '');
+        setItemShare(data.livingPattern.sharing || '');
+        setSoundTool(data.livingPattern.speaker_use || '');
+        setCallPlace(data.livingPattern.call_pattern || '');
+        setSocialType(data.livingPattern.introvert || '');
+        setCleaning(data.livingPattern.sanitary || '');
+        setSmoking(data.livingPattern.smoke || '');
+        setDormEat(data.livingPattern.available_eat || '');
+      }
+      setOriginalData({
+        nickname: data.nickname || '',
+        introduction: data.introduction_comment || '',
+        gender: data.sex === 'male' ? '남성' : '여성',
+        degree: data.dormitoryName || '',
+        sleepType: data.livingPattern?.sleep_pattern || '',
+        snoreType: data.livingPattern?.snoring || '',
+        nightWorkType: data.livingPattern?.night_work || '',
+        lifestyle: data.livingPattern?.home_leaving || '',
+        showerTime: data.livingPattern?.shower_pattern || '',
+        itemShare: data.livingPattern?.sharing || '',
+        soundTool: data.livingPattern?.speaker_use || '',
+        callPlace: data.livingPattern?.call_pattern || '',
+        socialType: data.livingPattern?.introvert || '',
+        cleaning: data.livingPattern?.sanitary || '',
+        smoking: data.livingPattern?.smoke || '',
+        dormEat: data.livingPattern?.available_eat || '',
+      });
+      setShowSaveSuccessModal(true);
     } catch (error) {
-      console.error('저장 실패:', error);
-      alert('저장에 실패했습니다.');
+      console.error('저장 또는 정보 갱신 실패:', error);
+      setShowSaveFailModal(true);
     }
   };
 
@@ -152,67 +189,120 @@ const Edit = () => {
   const [isDuplicated, setIsDuplicated] = useState<boolean | null>(null); // null: 초기값, true: 중복, false: 사용 가능
 
   const handleCheckNickname = async () => {
-    if (!nickname.trim()) return alert('닉네임을 입력해주세요.');
-    try {
-      setIsChecking(true);
-      const res = await axios.get(`http://localhost:8080/MyPage/Info/nicDup`, {
-        params: { nickname },
-      });
-
-      // 예시: 백엔드에서 { duplicated: true } 또는 { duplicated: false }로 응답한다고 가정
-      const duplicated = res.data?.duplicated;
-
-      if (duplicated === true) {
-        setIsDuplicated(true);
-        alert('이미 사용 중인 닉네임입니다.');
-      } else {
-        setIsDuplicated(false);
-        alert('사용 가능한 닉네임입니다!');
-      }
-    } catch (error) {
-      console.error('중복 확인 실패:', error);
-      alert('중복 확인 중 오류가 발생했습니다.');
-    } finally {
-      setIsChecking(false);
-    }
+    if (!nickname.trim()) return setShowNicknameUnavailableModal(true);
+    // 실제 API 연동 시 아래 부분을 수정
+    setIsDuplicated(false);
+    setShowNicknameAvailableModal(true);
   };
+
+  // 원본 데이터 상태 추가
+  const [originalData, setOriginalData] = useState<any>(null);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/MyPage/Info', {
-          params: {
-            memberId: memberId,
-          },
+        const response = await axios.get('http://ec2-52-78-243-69.ap-northeast-2.compute.amazonaws.com:8080/MyPage/Info', {
+          params: { memberId }
         });
-
         const data = response.data;
+
         setNickname(data.nickname || '');
         setIntroduction(data.introduction_comment || '');
-        setGender(data.sex || '남성');
+        setGender(data.sex === 'male' ? '남성' : '여성');
+        setDegree(data.dormitoryName || '');
+
+        if (data.livingPattern) {
+          setSleepType(data.livingPattern.sleep_pattern || '');
+          setSnoreType(data.livingPattern.snoring || '');
+          setNightWorkType(data.livingPattern.night_work || '');
+          setLifestyle(data.livingPattern.home_leaving || '');
+          setShowerTime(data.livingPattern.shower_pattern || '');
+          setItemShare(data.livingPattern.sharing || '');
+          setSoundTool(data.livingPattern.speaker_use || '');
+          setCallPlace(data.livingPattern.call_pattern || '');
+          setSocialType(data.livingPattern.introvert || '');
+          setCleaning(data.livingPattern.sanitary || '');
+          setSmoking(data.livingPattern.smoke || '');
+          setDormEat(data.livingPattern.available_eat || '');
+        }
+        // 원본 데이터 저장
+        setOriginalData({
+          nickname: data.nickname || '',
+          introduction: data.introduction_comment || '',
+          gender: data.sex === 'male' ? '남성' : '여성',
+          degree: data.dormitoryName || '',
+          sleepType: data.livingPattern?.sleep_pattern || '',
+          snoreType: data.livingPattern?.snoring || '',
+          nightWorkType: data.livingPattern?.night_work || '',
+          lifestyle: data.livingPattern?.home_leaving || '',
+          showerTime: data.livingPattern?.shower_pattern || '',
+          itemShare: data.livingPattern?.sharing || '',
+          soundTool: data.livingPattern?.speaker_use || '',
+          callPlace: data.livingPattern?.call_pattern || '',
+          socialType: data.livingPattern?.introvert || '',
+          cleaning: data.livingPattern?.sanitary || '',
+          smoking: data.livingPattern?.smoke || '',
+          dormEat: data.livingPattern?.available_eat || '',
+        });
       } catch (error) {
         console.error('사용자 정보 불러오기 실패:', error);
+        alert('사용자 정보를 불러오지 못했습니다.');
       }
     };
 
     fetchUserInfo();
   }, []);
 
+  // 변경사항 비교 함수
+  const isDataChanged = () => {
+    if (!originalData) return false;
+    return (
+      nickname !== originalData.nickname ||
+      introduction !== originalData.introduction ||
+      gender !== originalData.gender ||
+      degree !== originalData.degree ||
+      sleepType !== originalData.sleepType ||
+      snoreType !== originalData.snoreType ||
+      nightWorkType !== originalData.nightWorkType ||
+      lifestyle !== originalData.lifestyle ||
+      showerTime !== originalData.showerTime ||
+      itemShare !== originalData.itemShare ||
+      soundTool !== originalData.soundTool ||
+      callPlace !== originalData.callPlace ||
+      socialType !== originalData.socialType ||
+      cleaning !== originalData.cleaning ||
+      smoking !== originalData.smoking ||
+      dormEat !== originalData.dormEat
+    );
+  };
+
+  // 변경사항 저장 여부 모달 상태
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [pendingNavigate, setPendingNavigate] = useState(false);
+
+  // 뒤로가기 버튼 동작 수정
+  const handleBack = () => {
+    if (isDataChanged()) {
+      setShowLeaveModal(true);
+      setPendingNavigate(true);
+    } else {
+      navigate(-1);
+    }
+  };
+
   return (
     <div className="flex flex-col items-start justify-start w-full max-w-[375px] mx-auto min-h-screen py-6 pb-[72px]">
       {/* 상단 뒤로가기 버튼 */}
       <div className="w-[375px] h-[48px] flex items-center justify-between px-4 py-3">
         <button
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
           aria-label="뒤로가기"
           className="px-0 py-0 bg-transparent"
         >
           <img src="/icons/chevron_left.svg" alt="뒤로가기" />
         </button>
         <button
-          disabled={!isFormComplete}
-          onClick={handleSave}
-          style={{ color: isFormComplete ? COLORS.PRIMARY : COLORS.GRAYSCALE.G6 }}
+          onClick={() => { console.log('handleSave 실행'); handleSave(); }}
           className={`${TYPOGRAPHY.TITLE1} px-0 py-0 bg-transparent`}
         >
           저장
@@ -400,6 +490,113 @@ const Edit = () => {
           />
         </div>
       </div>
+
+      {/* 닉네임 사용 가능 모달 */}
+      {showNicknameAvailableModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl w-[336px] h-[184px] text-center">
+            <div className="py-10">
+              <p className={`${TYPOGRAPHY.BODY3} px-[86.5px] py-[12.5px] text-black`}>
+                사용 가능한 닉네임입니다!
+              </p>
+            </div>
+            <Button
+              className="w-full h-[56px] bg-black text-white border-none rounded-b-lg rounded-t-none"
+              onClick={() => setShowNicknameAvailableModal(false)}
+            >
+              확인
+            </Button>
+          </div>
+        </div>
+      )}
+      {/* 닉네임 사용 불가 모달 */}
+      {showNicknameUnavailableModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl w-[336px] h-[184px] text-center">
+            <div className="py-10">
+              <p className={`${TYPOGRAPHY.BODY3} px-[86.5px] py-[12.5px] text-black`}>
+                닉네임을 입력해주세요.
+              </p>
+            </div>
+            <Button
+              className="w-full h-[56px] bg-black text-white border-none rounded-b-lg rounded-t-none"
+              onClick={() => setShowNicknameUnavailableModal(false)}
+            >
+              확인
+            </Button>
+          </div>
+        </div>
+      )}
+      {/* 변경사항 저장 여부 모달 */}
+      {showLeaveModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl w-[336px] h-[184px] text-center">
+            <div className="py-10">
+              <p className={`${TYPOGRAPHY.BODY3} px-[40px] py-[12.5px] text-black`}>
+                변경사항이 저장되지 않았습니다. 그래도 나가시겠습니까?
+              </p>
+            </div>
+            <div className="flex w-full border-t border-gray-200">
+              <Button
+                className="w-1/2 h-[56px] bg-black text-white border-none rounded-bl-lg"
+                onClick={() => {
+                  setShowLeaveModal(false);
+                  setPendingNavigate(false);
+                }}
+              >
+                취소
+              </Button>
+              <div className="w-px h-[56px] bg-gray-200" />
+              <Button
+                className="w-1/2 h-[56px] bg-black text-white border-none rounded-br-lg"
+                onClick={() => {
+                  setShowLeaveModal(false);
+                  setPendingNavigate(false);
+                  navigate(-1);
+                }}
+              >
+                확인
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* 저장 성공 모달 */}
+      {showSaveSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl w-[336px] h-[184px] text-center">
+            <div className="py-10">
+              <p className={`${TYPOGRAPHY.BODY3} px-[40px] py-[12.5px] text-black`}>
+                저장 및 최신 정보 반영 완료!
+              </p>
+            </div>
+            <Button
+              className="w-full h-[56px] bg-black text-white border-none rounded-b-lg rounded-t-none"
+              onClick={() => setShowSaveSuccessModal(false)}
+            >
+              확인
+            </Button>
+          </div>
+        </div>
+      )}
+      {/* 저장 실패 모달 */}
+      {showSaveFailModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl w-[336px] h-[184px] text-center">
+            <div className="py-10">
+              <p className={`${TYPOGRAPHY.BODY3} px-[40px] py-[12.5px] text-black`}>
+                저장 또는 정보 갱신에 실패했습니다.
+              </p>
+            </div>
+            <Button
+              className="w-full h-[56px] bg-black text-white border-none rounded-b-lg rounded-t-none"
+              onClick={() => setShowSaveFailModal(false)}
+            >
+              확인
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

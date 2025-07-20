@@ -52,7 +52,7 @@ const EmailinputPage = () => {
       console.log('메일 전송');
 
       // 로컬 스토리지에 이메일 저장
-      localStorage.setItem('userEmail', email);
+      localStorage.setItem('email', email);
 
       // 실제 메일 전송 로직 필요
       setStep('sent'); // 이메일 전송 완료 모달로 전환
@@ -76,7 +76,6 @@ const EmailinputPage = () => {
 
   // 인증번호 검증 API 시뮬레이션 (프론트엔드 테스트용)
   const verifyCodeAPI = async (code: string) => {
-    // 실제에선 fetch/axios 등으로 서버에 요청할 것
     return new Promise<{ success: boolean }>(resolve => {
       setTimeout(() => {
         resolve({ success: code === '12345678' }); // 12345678이 정답인 상태
