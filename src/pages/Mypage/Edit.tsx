@@ -107,6 +107,9 @@ const Edit = () => {
   // 저장 실패 모달 상태
   const [showSaveFailModal, setShowSaveFailModal] = useState(false);
 
+  // 저장(수정) 버튼 클릭 시 실행되는 함수
+  // - 프로필 정보와 생활패턴을 서버에 저장(POST)
+  // - 저장 성공/실패/성공 안내를 팝업으로 표시
   const handleSave = async () => {
     try {
       const payload = {
@@ -253,7 +256,7 @@ const Edit = () => {
     fetchUserInfo();
   }, []);
 
-  // 변경사항 비교 함수
+  // 변경사항 비교 함수 (수정 여부 확인)
   const isDataChanged = () => {
     if (!originalData) return false;
     return (
@@ -280,7 +283,7 @@ const Edit = () => {
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [pendingNavigate, setPendingNavigate] = useState(false);
 
-  // 뒤로가기 버튼 동작 수정
+  // 뒤로가기 버튼 클릭 시 실행되는 함수 (변경사항 있을 때 팝업)
   const handleBack = () => {
     if (isDataChanged()) {
       setShowLeaveModal(true);
