@@ -5,9 +5,18 @@ import { TYPOGRAPHY } from '../../constants/typography';
 import { COLORS } from '../../constants/colors';
 import Button from '../../components/Button/Button';
 import CustomSelect from '../../components/CustomSelect';
+import { useEffect } from 'react';
 
 const Setup = () => {
   const navigate = useNavigate(); // 페이지 이동을 위한 라우터 훅
+  const [email, setEmail] = useState('');
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('userEmail');
+    if (savedEmail) {
+      setEmail(savedEmail);
+    }
+  }, []);
 
   // ========================================
   // 사용자 입력 값 상태 정의 (닉네임, 성별, 학사 선택)
@@ -188,7 +197,7 @@ const Setup = () => {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
-                    email: 'example@yonsei.ac.kr', // TODO: 실제 입력값 연결 필요
+                    email,
                     nickname,
                     sex: gender,
                     dormitory: degree,

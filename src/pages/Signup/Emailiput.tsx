@@ -50,6 +50,10 @@ const EmailinputPage = () => {
   const handleSendEmail = () => {
     if (isEmailValid) {
       console.log('메일 전송');
+
+      // 로컬 스토리지에 이메일 저장
+      localStorage.setItem('userEmail', email);
+
       // 실제 메일 전송 로직 필요
       setStep('sent'); // 이메일 전송 완료 모달로 전환
     }
