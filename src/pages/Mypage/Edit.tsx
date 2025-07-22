@@ -9,6 +9,28 @@ import Button from '../../components/Button/Button';
 
 const Edit = () => {
   const navigate = useNavigate();
+
+  /* 매핑 */
+  const dormitoryNameMap: Record<string, string> = {
+    MAEJI_1: '매지학사1',
+    MAEJI_2: '매지학사2',
+    MAEJI_3_MALE: '매지학사3_남',
+    MAEJI_3_FEMALE: '매지학사3_여',
+    SEYEON_1: '세연학사1',
+    SEYEON_2: '세연학사2',
+    SEYEON_3: '세연학사3',
+    CHEONGYEON_1: '청연학사1',
+    CHEONGYEON_2: '청연학사2',
+  };
+
+  const koreanToEnumMap = Object.entries(dormitoryNameMap).reduce(
+    (acc, [key, value]) => {
+      acc[value] = key;
+      return acc;
+    },
+    {} as Record<string, string>
+  );
+
   const [nickname, setNickname] = useState('');
   const [introduction, setIntroduction] = useState('');
   const [gender, setGender] = useState('남성'); // 기본값: 남성
@@ -90,13 +112,6 @@ const Edit = () => {
   // 여성에 따른 학사 목록
   const femaleDormitories = ['매지학사2', '매지학사3_여', '세연학사3', '청연학사2'];
 
-  // 추가 정보 상태
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  // livingPattern id 상태 (필요시)
-  const [livingPatternId] = useState(0); // 실제 id가 있다면 불러와서 세팅
-
   // 닉네임 중복 확인 모달 상태
   const [showNicknameAvailableModal, setShowNicknameAvailableModal] = useState(false);
   const [showNicknameUnavailableModal, setShowNicknameUnavailableModal] = useState(false);
@@ -111,15 +126,21 @@ const Edit = () => {
   // - 프로필 정보와 생활패턴을 서버에 저장(POST)
   // - 저장 성공/실패/성공 안내를 팝업으로 표시
   const handleSave = async () => {
+    if (
+      isDuplicated !== false &&
+      nickname !== originalData?.nickname // ✅ 닉네임이 변경된 경우에만 중복 확인 필요
+    ) {
+      alert('닉네임 중복 확인 후 사용 가능한 경우에만 저장할 수 있습니다.');
+      return;
+    }
+
     try {
       const payload = {
         name: name,
         introduction_comment: introduction,
-        phone: phone,
-        email: email,
         nickname: nickname,
         sex: gender === '남성' ? 'male' : 'female',
-        dormitoryName: degree,
+        dormitoryName: koreanToEnumMap[degree],
         livingPattern: {
           sleep_pattern: sleepType,
           snoring: snoreType,
@@ -141,14 +162,17 @@ const Edit = () => {
         payload
       );
       // 저장 후 GET으로 최신 정보 다시 불러오기
-      const response = await axios.get('http://ec2-52-78-243-69.ap-northeast-2.compute.amazonaws.com:8080/MyPage/Info', {
-        params: { memberId }
-      });
+      const response = await axios.get(
+        'http://ec2-52-78-243-69.ap-northeast-2.compute.amazonaws.com:8080/MyPage/Info',
+        {
+          params: { memberId },
+        }
+      );
       const data = response.data;
       setNickname(data.nickname || '');
       setIntroduction(data.introduction_comment || '');
       setGender(data.sex === 'male' ? '남성' : '여성');
-      setDegree(data.dormitoryName || '');
+      setDegree(dormitoryNameMap[data.dormitoryName] || '');
       if (data.livingPattern) {
         setSleepType(data.livingPattern.sleep_pattern || '');
         setSnoreType(data.livingPattern.snoring || '');
@@ -167,7 +191,7 @@ const Edit = () => {
         nickname: data.nickname || '',
         introduction: data.introduction_comment || '',
         gender: data.sex === 'male' ? '남성' : '여성',
-        degree: data.dormitoryName || '',
+        degree: dormitoryNameMap[data.dormitoryName] || '',
         sleepType: data.livingPattern?.sleep_pattern || '',
         snoreType: data.livingPattern?.snoring || '',
         nightWorkType: data.livingPattern?.night_work || '',
@@ -188,31 +212,74 @@ const Edit = () => {
     }
   };
 
-  const [isChecking, setIsChecking] = useState(false);
+  const [isChecking] = useState(false);
   const [isDuplicated, setIsDuplicated] = useState<boolean | null>(null); // null: 초기값, true: 중복, false: 사용 가능
 
   const handleCheckNickname = async () => {
-    if (!nickname.trim()) return setShowNicknameUnavailableModal(true);
-    // 실제 API 연동 시 아래 부분을 수정
-    setIsDuplicated(false);
-    setShowNicknameAvailableModal(true);
+    if (!nickname.trim()) {
+      setShowNicknameUnavailableModal(true);
+      return;
+    }
+
+    try {
+      const response = await axios.get(
+        'http://ec2-52-78-243-69.ap-northeast-2.compute.amazonaws.com:8080/MyPage/Info/nicDup',
+        {
+          params: { nickname },
+        }
+      );
+      console.log('닉네임 중복 확인 응답:', response.data);
+
+      if (response.data === 'DUPLICATED') {
+        setIsDuplicated(true);
+        setShowNicknameUnavailableModal(true);
+      } else {
+        setIsDuplicated(false);
+        setShowNicknameAvailableModal(true);
+      }
+    } catch (error) {
+      // 닉네임이 중복이거나 오류가 발생한 경우
+      console.error('닉네임 중복 확인 실패:', error);
+      setIsDuplicated(true);
+      setShowNicknameUnavailableModal(true);
+    }
   };
 
   // 원본 데이터 상태 추가
-  const [originalData, setOriginalData] = useState<any>(null);
+  const [originalData, setOriginalData] = useState<{
+    nickname: string;
+    introduction: string;
+    gender: string;
+    degree: string;
+    sleepType: string;
+    snoreType: string;
+    nightWorkType: string;
+    lifestyle: string;
+    showerTime: string;
+    itemShare: string;
+    soundTool: string;
+    callPlace: string;
+    socialType: string;
+    cleaning: string;
+    smoking: string;
+    dormEat: string;
+  } | null>(null);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const response = await axios.get('http://ec2-52-78-243-69.ap-northeast-2.compute.amazonaws.com:8080/MyPage/Info', {
-          params: { memberId }
-        });
+        const response = await axios.get(
+          'http://ec2-52-78-243-69.ap-northeast-2.compute.amazonaws.com:8080/MyPage/Info',
+          {
+            params: { memberId },
+          }
+        );
         const data = response.data;
 
         setNickname(data.nickname || '');
         setIntroduction(data.introduction_comment || '');
         setGender(data.sex === 'male' ? '남성' : '여성');
-        setDegree(data.dormitoryName || '');
+        setDegree(dormitoryNameMap[data.dormitoryName] || '');
 
         if (data.livingPattern) {
           setSleepType(data.livingPattern.sleep_pattern || '');
@@ -281,13 +348,11 @@ const Edit = () => {
 
   // 변경사항 저장 여부 모달 상태
   const [showLeaveModal, setShowLeaveModal] = useState(false);
-  const [pendingNavigate, setPendingNavigate] = useState(false);
 
   // 뒤로가기 버튼 클릭 시 실행되는 함수 (변경사항 있을 때 팝업)
   const handleBack = () => {
     if (isDataChanged()) {
       setShowLeaveModal(true);
-      setPendingNavigate(true);
     } else {
       navigate(-1);
     }
@@ -297,16 +362,16 @@ const Edit = () => {
     <div className="flex flex-col items-start justify-start w-full max-w-[375px] mx-auto min-h-screen py-6 pb-[72px]">
       {/* 상단 뒤로가기 버튼 */}
       <div className="w-[375px] h-[48px] flex items-center justify-between px-4 py-3">
-        <button
-          onClick={handleBack}
-          aria-label="뒤로가기"
-          className="px-0 py-0 bg-transparent"
-        >
+        <button onClick={handleBack} aria-label="뒤로가기" className="px-0 py-0 bg-transparent">
           <img src="/icons/chevron_left.svg" alt="뒤로가기" />
         </button>
         <button
-          onClick={() => { console.log('handleSave 실행'); handleSave(); }}
-          className={`${TYPOGRAPHY.TITLE1} px-0 py-0 bg-transparent`}
+          onClick={() => {
+            console.log('handleSave 실행');
+            handleSave();
+          }}
+          style={{ color: COLORS.PRIMARY }}
+          className={`${TYPOGRAPHY.TITLE2} px-0 py-0 bg-transparent`}
         >
           저장
         </button>
@@ -321,10 +386,7 @@ const Edit = () => {
           {imageSrc ? (
             <img src={imageSrc} alt="프로필" className="object-cover w-full h-full" />
           ) : (
-            <img
-              src="/icons/mypage_edit-contained.svg" // 연필 아이콘 경로
-              alt="편집 아이콘"
-            />
+            <img src="/icons/mypage_edit-contained.svg" alt="편집 아이콘" />
           )}
         </div>
 
@@ -357,7 +419,10 @@ const Edit = () => {
         <input
           type="text"
           value={nickname}
-          onChange={e => setNickname(e.target.value)}
+          onChange={e => {
+            setNickname(e.target.value);
+            setIsDuplicated(null);
+          }}
           placeholder="닉네임을 입력해주세요"
           className="w-full h-12 px-4 text-sm border border-gray-300 rounded-lg"
         />
@@ -518,7 +583,7 @@ const Edit = () => {
           <div className="bg-white rounded-xl w-[336px] h-[184px] text-center">
             <div className="py-10">
               <p className={`${TYPOGRAPHY.BODY3} px-[86.5px] py-[12.5px] text-black`}>
-                닉네임을 입력해주세요.
+                다른 닉네임을 다시 입력해주세요.
               </p>
             </div>
             <Button
@@ -534,17 +599,16 @@ const Edit = () => {
       {showLeaveModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-xl w-[336px] h-[184px] text-center">
-            <div className="py-10">
-              <p className={`${TYPOGRAPHY.BODY3} px-[40px] py-[12.5px] text-black`}>
+            <div className="pt-10 pb-[32px]">
+              <p className={`${TYPOGRAPHY.BODY3} px-[40px] pt-2 text-black`}>
                 변경사항이 저장되지 않았습니다. 그래도 나가시겠습니까?
               </p>
             </div>
-            <div className="flex w-full border-t border-gray-200">
+            <div className="flex w-full bg-black rounded-b-md">
               <Button
                 className="w-1/2 h-[56px] bg-black text-white border-none rounded-bl-lg"
                 onClick={() => {
                   setShowLeaveModal(false);
-                  setPendingNavigate(false);
                 }}
               >
                 취소
@@ -554,7 +618,6 @@ const Edit = () => {
                 className="w-1/2 h-[56px] bg-black text-white border-none rounded-br-lg"
                 onClick={() => {
                   setShowLeaveModal(false);
-                  setPendingNavigate(false);
                   navigate(-1);
                 }}
               >

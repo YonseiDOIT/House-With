@@ -17,12 +17,16 @@ const MyPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://ec2-52-78-243-69.ap-northeast-2.compute.amazonaws.com:8080/MyPage', {
-          params: { memberId }
-        });
+        const response = await axios.get(
+          'http://ec2-52-78-243-69.ap-northeast-2.compute.amazonaws.com:8080/MyPage',
+          {
+            params: { memberId },
+          }
+        );
         setNickname(response.data.nickname || '');
         setIntroduction(response.data.introduction_comment || '');
-      } catch (e) {
+      } catch (error) {
+        console.error('마이페이지 데이터 로드 실패:', error);
         setNickname('');
         setIntroduction('');
       }
@@ -77,7 +81,7 @@ const MyPage = () => {
               <div className="px-6 py-[14.5px] flex items-center justify-between">
                 <p className={`${TYPOGRAPHY.BODY3}`}>내가 저장한 목록</p>
                 <button
-                  onClick={() => navigate('/mypage-store')}
+                  onClick={() => navigate('/homefilter')}
                   className="px-0 py-0 bg-transparent"
                 >
                   <img src="../public/icons/chevron_right.svg" className="w-6 h-6" />
