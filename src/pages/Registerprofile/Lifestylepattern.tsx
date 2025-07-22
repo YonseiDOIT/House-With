@@ -1,9 +1,9 @@
-// 생략된 import는 기존 유지
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { TYPOGRAPHY } from '../../constants/typography';
 import { COLORS } from '../../constants/colors';
 import Button from '../../components/Button/Button';
+import axios from 'axios';
 
 const Lifestylepattern = () => {
   const navigate = useNavigate();
@@ -22,7 +22,6 @@ const Lifestylepattern = () => {
   const [smoking, setSmoking] = useState('');
   const [dormEat, setDormEat] = useState('');
 
-  // 팝업 및 하이라이트 상태
   const [showModal, setShowModal] = useState(false);
   const [highlightEmpty, setHighlightEmpty] = useState(false);
 
@@ -40,7 +39,6 @@ const Lifestylepattern = () => {
     smoking &&
     dormEat;
 
-  // 공통 버튼 스타일 (선택 여부 + 하이라이트 여부)
   const getButtonStyle = (isSelected: boolean, isHighlighted: boolean): React.CSSProperties => {
     if (isSelected) return { backgroundColor: '#000000', color: '#FFFFFF' };
     if (isHighlighted) return { backgroundColor: '#FFE5E5', color: '#000000' };
@@ -67,12 +65,46 @@ const Lifestylepattern = () => {
     </div>
   );
 
-  const handleSubmit = () => {
+  const memberId = 1; // 임시 수동 memberId, 실제 연동 시 수정 필요
+
+  const handleSubmit = async () => {
     if (!isFormValid) {
       setShowModal(true);
       setHighlightEmpty(true);
-    } else {
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        // ✅ memberId를 URL 쿼리 파라미터로 전달
+        `http://ec2-52-78-243-69.ap-northeast-2.compute.amazonaws.com:8080/user-info/patternInfo?memberId=${memberId}`,
+        {
+          // 🔽 LivingPatternDTO에 정의된 12개 필드만 전달
+          sleep_pattern: sleepType,
+          snoring: snoreType,
+          night_work: nightWorkType,
+          home_leaving: lifestyle,
+          shower_pattern: showerTime,
+          sharing: itemShare,
+          speaker_use: soundTool,
+          call_pattern: callPlace,
+          introvert: socialType,
+          sanitary: cleaning,
+          smoke: smoking,
+          available_eat: dormEat,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      console.log('요청 성공:', response.data);
       navigate('/Welcome');
+    } catch (error) {
+      console.error('요청 실패:', error);
+      alert('전송에 실패했습니다. 다시 시도해주세요.');
     }
   };
 
@@ -102,13 +134,13 @@ const Lifestylepattern = () => {
       {/* 설명 */}
       <div className="w-[375px] px-5 py-4">
         <p className={`${TYPOGRAPHY.BODY3} leading-snug whitespace-pre-line`}>
-          각각에 카테고리의 모든 생활 패턴을 알려주세요.{'\n'}
+          각각의 카테고리의 모든 생활 패턴을 알려주세요.{'\n'}
           다른 사용자들이 확인할 수 있으며,{'\n'}
           추후 마이페이지에서 수정 가능합니다.
         </p>
       </div>
 
-      {/* 설명2 */}
+      {/* 경고 */}
       <div className="w-[375px] px-5 py-4 flex flex-row gap-3">
         <p className={`${TYPOGRAPHY.TITLE1} leading-snug whitespace-pre-line`}>생활 패턴</p>
         <p

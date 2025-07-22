@@ -6,7 +6,9 @@ import { HomeRoutes } from './routes/HomeRoutes';
 function App() {
   return (
     <BrowserRouter>
+
       <Routes>{HomeRoutes}</Routes>
+
     </BrowserRouter>
   );
 }

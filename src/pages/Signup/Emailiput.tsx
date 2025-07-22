@@ -50,6 +50,10 @@ const EmailinputPage = () => {
   const handleSendEmail = () => {
     if (isEmailValid) {
       console.log('메일 전송');
+
+      // 로컬 스토리지에 이메일 저장
+      localStorage.setItem('email', email);
+
       // 실제 메일 전송 로직 필요
       setStep('sent'); // 이메일 전송 완료 모달로 전환
     }
@@ -72,7 +76,6 @@ const EmailinputPage = () => {
 
   // 인증번호 검증 API 시뮬레이션 (프론트엔드 테스트용)
   const verifyCodeAPI = async (code: string) => {
-    // 실제에선 fetch/axios 등으로 서버에 요청할 것
     return new Promise<{ success: boolean }>(resolve => {
       setTimeout(() => {
         resolve({ success: code === '12345678' }); // 12345678이 정답인 상태
@@ -155,16 +158,16 @@ const EmailinputPage = () => {
             </Button>
           </div>
 
-          {/* 이메일 재전송 버튼 (타이머 초기화) */}
+          {/* 인증 번호 재전송 버튼 (타이머 초기화) */}
           <div className="flex flex-col items-center justify-center w-full px-5 py-2 mb-4 space-y-2">
             <Button
               size="xl"
               onClick={() => {
                 setTimeLeft(120); // 타이머 초기화
-                console.log('이메일 재전송');
+                console.log('인증 번호 재전송');
               }}
             >
-              이메일 재전송
+              인증 번호 재전송
             </Button>
           </div>
 

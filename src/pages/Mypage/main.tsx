@@ -1,11 +1,38 @@
 import { TYPOGRAPHY } from '../../constants/typography';
 import { COLORS } from '../../constants/colors';
 import { useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
+import { useState, useEffect } from 'react';
 
 const MyPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname;
+
+  // API로 불러온 데이터 상태
+  const [nickname, setNickname] = useState('');
+  const [introduction, setIntroduction] = useState('');
+  const memberId = 1; // TODO: 실제 로그인 정보로 대체
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          'http://ec2-52-78-243-69.ap-northeast-2.compute.amazonaws.com:8080/MyPage',
+          {
+            params: { memberId },
+          }
+        );
+        setNickname(response.data.nickname || '');
+        setIntroduction(response.data.introduction_comment || '');
+      } catch (error) {
+        console.error('마이페이지 데이터 로드 실패:', error);
+        setNickname('');
+        setIntroduction('');
+      }
+    };
+    fetchData();
+  }, []);
 
   const isActive = (path: string) => currentPath === path;
 
@@ -25,15 +52,15 @@ const MyPage = () => {
 
           {/* 닉네임 + 이모지 */}
           <div className="flex items-center gap-1">
-            <p className={`${TYPOGRAPHY.TITLE1}`}>두잇 5팀 가족</p>
+            <p className={`${TYPOGRAPHY.TITLE1}`}>{nickname || '닉네임 없음'}</p>
           </div>
 
           {/* 소개글 */}
-          <p className={`${TYPOGRAPHY.BODY3} h-11 text-center mt-1 text-gray-500 leading-snug`}>
-            [소개글] 20학번이고 늦게자요
-            <br />
-            잠만 잘자면돼요 편하게 연락주세요
-          </p>
+          {introduction && (
+            <p className={`${TYPOGRAPHY.BODY3} h-11 text-center mt-1 text-gray-500 leading-snug`}>
+              {introduction}
+            </p>
+          )}
 
           {/* 프로필 수정 버튼 */}
           <button
@@ -54,7 +81,7 @@ const MyPage = () => {
               <div className="px-6 py-[14.5px] flex items-center justify-between">
                 <p className={`${TYPOGRAPHY.BODY3}`}>내가 저장한 목록</p>
                 <button
-                  onClick={() => navigate('/mypage-edit')}
+                  onClick={() => navigate('/homefilter')}
                   className="px-0 py-0 bg-transparent"
                 >
                   <img src="../public/icons/chevron_right.svg" className="w-6 h-6" />
