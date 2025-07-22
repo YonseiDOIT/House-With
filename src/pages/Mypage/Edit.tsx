@@ -7,29 +7,29 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 import Button from '../../components/Button/Button';
 
+/* 매핑 */
+const dormitoryNameMap: Record<string, string> = {
+  MAEJI_1: '매지학사1',
+  MAEJI_2: '매지학사2',
+  MAEJI_3_MALE: '매지학사3_남',
+  MAEJI_3_FEMALE: '매지학사3_여',
+  SEYEON_1: '세연학사1',
+  SEYEON_2: '세연학사2',
+  SEYEON_3: '세연학사3',
+  CHEONGYEON_1: '청연학사1',
+  CHEONGYEON_2: '청연학사2',
+};
+
+const koreanToEnumMap = Object.entries(dormitoryNameMap).reduce(
+  (acc, [key, value]) => {
+    acc[value] = key;
+    return acc;
+  },
+  {} as Record<string, string>
+);
+
 const Edit = () => {
   const navigate = useNavigate();
-
-  /* 매핑 */
-  const dormitoryNameMap: Record<string, string> = {
-    MAEJI_1: '매지학사1',
-    MAEJI_2: '매지학사2',
-    MAEJI_3_MALE: '매지학사3_남',
-    MAEJI_3_FEMALE: '매지학사3_여',
-    SEYEON_1: '세연학사1',
-    SEYEON_2: '세연학사2',
-    SEYEON_3: '세연학사3',
-    CHEONGYEON_1: '청연학사1',
-    CHEONGYEON_2: '청연학사2',
-  };
-
-  const koreanToEnumMap = Object.entries(dormitoryNameMap).reduce(
-    (acc, [key, value]) => {
-      acc[value] = key;
-      return acc;
-    },
-    {} as Record<string, string>
-  );
 
   const [nickname, setNickname] = useState('');
   const [introduction, setIntroduction] = useState('');
