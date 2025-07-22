@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes } from 'react-router-dom';
 import { OnboardingRoutes } from './routes/OnboardingRoutes';
 import { Mypage } from './routes/Mypage';
+import { HomeRoutes } from './routes/HomeRoutes';
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>{OnboardingRoutes}</Routes>
-      <Routes>{Mypage}</Routes>
+      <Routes>{HomeRoutes}</Routes>
     </BrowserRouter>
   );
 }
