@@ -10,7 +10,7 @@ function App() {
     <BrowserRouter>
       <Routes>
       
-        {ManageRoutes}
+        {HomeRoutes}
 
       </Routes>
     </BrowserRouter>
