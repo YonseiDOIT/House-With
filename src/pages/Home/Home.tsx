@@ -1,9 +1,15 @@
 import { TYPOGRAPHY } from '../../constants/typography';
 import { useNavigate } from 'react-router-dom';
 import { COLORS } from '../../constants/colors';
+import BottomNavigation from '../../components/BottomNavigation';
 
 const Home = () => {
     const navigate = useNavigate();
+
+    // 검색 아이콘 클릭 핸들러
+    const handleSearchClick = () => {
+        navigate('/homefilter'); 
+    };
 
     // 포스트 데이터
     const posts = [
@@ -65,11 +71,17 @@ const Home = () => {
                     />
                 </div>
                 <div className='flex items-center space-x-2'>
-                    <img
-                        src="../public/icons/home_search_black.svg"
-                        alt="앱바 검색 아이콘"
-                        className="w-5 h-5"
-                    />
+                    <button 
+                        onClick={handleSearchClick}
+                        className="p-1 bg-transparent"
+                        aria-label="검색"
+                    >
+                        <img
+                            src="../public/icons/home_search_black.svg"
+                            alt="앱바 검색 아이콘"
+                            className="w-5 h-5"
+                        />
+                    </button>
                     <img
                         src="../public/icons/home_alarm_disabled.svg"
                         alt="앱바 알림 아이콘"
@@ -134,8 +146,8 @@ const Home = () => {
                 </div>
             </div>
 
-            {/* 하단 네비게이션 공간 확보 */}
-            <div className="h-20"></div>
+            <BottomNavigation />
+            
         </div>
     );
 };
