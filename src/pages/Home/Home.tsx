@@ -40,14 +40,18 @@ const Home = () => {
 
     // 검색 아이콘 클릭 핸들러
     const handleSearchClick = () => {
-        navigate('/homefilter'); 
+        navigate('/homefilter');
+    };
+
+    const handleHouseClick = (postId: number) => {
+        navigate(`/homedetail/${postId}`);
     };
 
     // 기숙사명에 따른 카테고리 색상 매핑
     const getDormitoryColor = (dormitory: string): string => {
         const colorMap: { [key: string]: string } = {
             '세연학사': 'green',
-            '청연학사': 'blue', 
+            '청연학사': 'blue',
             '매지학사': 'red',
             // 필요에 따라 추가
         };
@@ -74,10 +78,10 @@ const Home = () => {
         try {
             setLoading(true);
             setError(null);
-            
-    
+
+
             const response = await axios.get<PostResponse[]>('http://ec2-52-78-243-69.ap-northeast-2.compute.amazonaws.com:8080/dormitory/list');
-            
+
             const transformedPosts = transformPostData(response.data);
             setPosts(transformedPosts);
         } catch (err) {
@@ -125,7 +129,7 @@ const Home = () => {
                     <p className={`${TYPOGRAPHY.BODY1} mb-4`} style={{ color: COLORS.GRAYSCALE.B }}>
                         {error}
                     </p>
-                    <button 
+                    <button
                         onClick={fetchPosts}
                         className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                     >
@@ -148,7 +152,7 @@ const Home = () => {
                     />
                 </div>
                 <div className='flex items-center space-x-2'>
-                    <button 
+                    <button
                         onClick={handleSearchClick}
                         className="p-1 bg-transparent"
                         aria-label="검색"
@@ -186,46 +190,53 @@ const Home = () => {
                 </p>
             </div>
 
-            <div className="w-full px-[30px]">
-                <div className="space-y-[24px]">
-                    {posts.length > 0 ? (
-                        posts.map((post) => (
-                            <div key={post.id}>
-                                {/* 카테고리 태그 */}
-                                <div className={`inline-block px-[10px] py-1 rounded-[20px] mb-2 ${TYPOGRAPHY.BODY1}`}
-                                    style={getCategoryStyle(post.categoryColor)}>
-                                    {post.category}
-                                </div>
+            {/* 스크롤 가능한 컨텐츠 영역 */}
+            <div className="flex-1 w-full overflow-y-auto pb-20">
+                <div className="px-[30px]">
+                    <div className="space-y-[24px]">
+                        {posts.length > 0 ? (
+                            posts.map((post) => (
+                                <div
+                                    key={post.id}
+                                    className="cursor-pointer hover:bg-gray-50 active:bg-gray-100 p-2 rounded-lg transition-colors"
+                                    onClick={() => handleHouseClick(post.id)}
+                                >
+                                    {/* 카테고리 태그 */}
+                                    <div className={`inline-block px-[10px] py-1 rounded-[20px] mb-2 ${TYPOGRAPHY.BODY1}`}
+                                        style={getCategoryStyle(post.categoryColor)}>
+                                        {post.category}
+                                    </div>
 
-                                {/* 제목 */}
-                                <div className={`mb-1 ${TYPOGRAPHY.TITLE1}`} style={{ color: COLORS.GRAYSCALE.B }}>
-                                    {post.title}
-                                    <span className="ml-1" style={{ color: COLORS.GRAYSCALE.G4 }}>💬</span>
-                                </div>
+                                    {/* 제목 */}
+                                    <div className={`mb-1 ${TYPOGRAPHY.TITLE1}`} style={{ color: COLORS.GRAYSCALE.B }}>
+                                        {post.title}
+                                        <span className="ml-1" style={{ color: COLORS.GRAYSCALE.G4 }}>💬</span>
+                                    </div>
 
-                                {/* 설명 */}
-                                <div className={`mb-1 ${TYPOGRAPHY.BODY2}`} style={{ color: COLORS.GRAYSCALE.B }}>
-                                    {post.description}
-                                </div>
+                                    {/* 설명 */}
+                                    <div className={`mb-1 ${TYPOGRAPHY.BODY2}`} style={{ color: COLORS.GRAYSCALE.B }}>
+                                        {post.description}
+                                    </div>
 
-                                {/* 메타 정보 */}
-                                <div className={`mb-1 ${TYPOGRAPHY.BODY2} flex items-center`}
-                                    style={{ color: COLORS.GRAYSCALE.B }}>
-                                    {post.author} • {post.timeAgo} •
-                                    <img src="../public/icons/home_house_black.svg"
-                                        alt="집 아이콘"
-                                        className="w-[7px] h-[8px] mx-1" />
-                                    {post.memberCount}/{post.totalCount}
+                                    {/* 메타 정보 */}
+                                    <div className={`mb-1 ${TYPOGRAPHY.BODY2} flex items-center`}
+                                        style={{ color: COLORS.GRAYSCALE.B }}>
+                                        {post.author} • {post.timeAgo} •
+                                        <img src="../public/icons/home_house_black.svg"
+                                            alt="집 아이콘"
+                                            className="w-[7px] h-[8px] mx-1" />
+                                        {post.memberCount}/{post.totalCount}
+                                    </div>
                                 </div>
+                            ))
+                        ) : (
+                            <div className="text-center py-8">
+                                <p className={`${TYPOGRAPHY.BODY1}`} style={{ color: COLORS.GRAYSCALE.G4 }}>
+                                    등록된 게시글이 없습니다.
+                                </p>
                             </div>
-                        ))
-                    ) : (
-                        <div className="text-center py-8">
-                            <p className={`${TYPOGRAPHY.BODY1}`} style={{ color: COLORS.GRAYSCALE.G4 }}>
-                                등록된 게시글이 없습니다.
-                            </p>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
 
