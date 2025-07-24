@@ -35,7 +35,8 @@ const Edit = () => {
   const [introduction, setIntroduction] = useState('');
   const [gender, setGender] = useState('남성'); // 기본값: 남성
 
-  const memberId = 1; // TODO: 실제 memberId 연동 필요
+  const memberIdList = [202, 155, 154, 253, 352];
+  const memberId = memberIdList[Math.floor(Math.random() * memberIdList.length)];
   const [degree, setDegree] = useState('');
 
   // 취침
@@ -544,18 +545,6 @@ const Edit = () => {
           </div>
           {renderButtons(['흡연자', '비흡연자'], smoking, setSmoking)}
           {renderButtons(['기숙사 내 취식 가능', '기숙사 내 취식 불가'], dormEat, setDormEat)}
-        </div>
-      </div>
-
-      {/* 오픈 채팅 링크 */}
-      <div className="w-full h-[112px] mt-4">
-        <p className={`${TYPOGRAPHY.TITLE2} px-5 py-[13px]`}>오픈 채팅</p>
-        <div className="flex justify-center w-full h-16 px-5">
-          <input
-            type="text"
-            placeholder="오픈 채팅 링크를 입력해주세요"
-            className="w-full h-12 px-4 text-sm placeholder-gray-400 border border-gray-300 rounded-lg"
-          />
         </div>
       </div>
 

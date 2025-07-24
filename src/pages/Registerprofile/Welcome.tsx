@@ -39,7 +39,7 @@ const Welcome = () => {
 
       {/* 하단: 버튼 */}
       <div className="flex items-center justify-center w-full h-[64px] px-6">
-        <Button size="xl" onClick={() => navigate('/mypage-main')}>
+        <Button size="xl" onClick={() => navigate('/home')}>
           하웃스윗 시작하기
         </Button>
       </div>

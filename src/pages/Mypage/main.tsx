@@ -3,7 +3,6 @@ import { COLORS } from '../../constants/colors';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
-import BottomNavigation from '../../components/BottomNavigation';
 
 const MyPage = () => {
   const navigate = useNavigate();
@@ -13,7 +12,8 @@ const MyPage = () => {
   // API로 불러온 데이터 상태
   const [nickname, setNickname] = useState('');
   const [introduction, setIntroduction] = useState('');
-  const memberId = 1; // TODO: 실제 로그인 정보로 대체
+  const memberIdList = [202, 155, 154, 253, 352];
+  const memberId = memberIdList[Math.floor(Math.random() * memberIdList.length)];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -114,7 +114,51 @@ const MyPage = () => {
           </div>
         </div>
       </div>
-      <BottomNavigation />
+
+      {/* 하단 네비게이션 */}
+      <div className="fixed bottom-0 left-0 w-full h-[56px] border-t border-gray-200 flex justify-around items-center bg-white z-50">
+        {/* 홈 */}
+        <button
+          onClick={() => navigate('/home')}
+          className={`flex flex-col items-center bg-transparent ${isActive('/home') ? 'text-[#FF7A00]' : 'text-gray-400'}`}
+        >
+          <img
+            src={isActive('/home') ? '/icons/home_house_orange.svg' : '/icons/home_house_gray.svg'}
+            className="w-5 h-5"
+          />
+          <span className={`mt-1 text-xs ${isActive('/home') ? 'font-semibold' : ''}`}>홈</span>
+        </button>
+
+        {/* 관리 */}
+        <button
+          onClick={() => navigate('/letter')}
+          className={`flex flex-col items-center bg-transparent ${isActive('/letter') ? 'text-[#FF7A00]' : 'text-gray-400'}`}
+        >
+          <img
+            src={
+              isActive('/letter')
+                ? '/icons/home_message_orange.svg'
+                : '/icons/home_message_gray.svg'
+            }
+            className="w-6 h-6"
+          />
+          <span className={`mt-1 text-xs ${isActive('/letter') ? 'font-semibold' : ''}`}>관리</span>
+        </button>
+
+        {/* 마이페이지 */}
+        <button
+          onClick={() => navigate('/mypage-main')}
+          className={`flex flex-col items-center bg-transparent ${isActive('/mypage-main') ? 'text-[#FF7A00]' : 'text-gray-400'}`}
+        >
+          <img
+            src={isActive('/mypage-main') ? '/icons/mypage_Person.svg' : '/icons/admin_people.svg'}
+            className="w-5 h-5"
+          />
+          <span className={`mt-1 text-xs ${isActive('/mypage-main') ? 'font-semibold' : ''}`}>
+            마이페이지
+          </span>
+        </button>
+      </div>
     </div>
   );
 };
