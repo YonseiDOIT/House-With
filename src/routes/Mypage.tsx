@@ -8,5 +8,6 @@ export const Mypage = (
     <Route path="/mypage-main" element={<MypageMain />} />
     <Route path="/mypage-edit" element={<Edit />} />
     <Route path="/mypage-feedback" element={<Feedback />} />
+
   </>
 );
