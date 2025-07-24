@@ -43,9 +43,9 @@ const Home = () => {
         navigate('/homefilter');
     };
 
-    const handleHouseClick = (postId: number) => {
-        navigate(`/homedetail/${postId}`);
-    };
+   const handleHouseClick = () => {
+    navigate('/homedetail');
+};
 
     // 기숙사명에 따른 카테고리 색상 매핑
     const getDormitoryColor = (dormitory: string): string => {
@@ -199,7 +199,7 @@ const Home = () => {
                                 <div
                                     key={post.id}
                                     className="cursor-pointer hover:bg-gray-50 active:bg-gray-100 p-2 rounded-lg transition-colors"
-                                    onClick={() => handleHouseClick(post.id)}
+                                    onClick={handleHouseClick}
                                 >
                                     {/* 카테고리 태그 */}
                                     <div className={`inline-block px-[10px] py-1 rounded-[20px] mb-2 ${TYPOGRAPHY.BODY1}`}
