@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { TYPOGRAPHY } from '../constants/typography';
-import { COLORS } from '../constants/colors';
+import { TYPOGRAPHY } from '../../constants/typography';
+import { COLORS } from '../../constants/colors';
 import { useEffect, useState } from 'react';
 
 const HomeFilter = () => {

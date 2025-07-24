@@ -8,11 +8,11 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-      
         {HomeRoutes}
-        {ManageRoutes}
         {OnboardingRoutes}
         {Mypage}
+        {ManageRoutes}
+
 
 
       </Routes>
